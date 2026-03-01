@@ -1,5 +1,5 @@
 /**
- * INSTAGRAB - OFFICIAL CLIENT-SIDE CORE
+ * BROQINSTA - OFFICIAL CLIENT-SIDE CORE
  * Version: 2.1.0-Production
  * Optimized for speed and security.
  */
@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Production Console Brand
 console.log(
-    '%cInstaGrab Official',
+    '%cBroqInsta Official',
     'font-size: 32px; font-weight: 900; background: linear-gradient(135deg, #7C3AED, #EC4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-family: sans-serif;'
 );
 console.log('%cProfessional Media Extraction Protocol Active.', 'color: #6B7280; font-size: 12px;');

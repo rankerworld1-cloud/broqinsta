@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Settings - InstaGrab Production</title>
+    <title>Global Settings - BroqInsta Production</title>
     <link rel="stylesheet" href="../css/style.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -34,7 +34,7 @@
             <div class="w-10 h-10 bg-gray-50 rounded-xl p-1 shadow-sm">
                 <img src="../images/logo.png" class="w-full h-full object-contain">
             </div>
-            <span class="text-xl font-black italic">InstaGrab<span class="text-purple-600">.</span></span>
+            <span class="text-xl font-black italic">BroqInsta<span class="text-purple-600">.</span></span>
         </div>
 
         <nav class="space-y-4 flex-grow">
@@ -85,7 +85,7 @@
                         <div class="space-y-3">
                             <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 px-2">Brand
                                 Identity</label>
-                            <input type="text" id="site_name" placeholder="InstaGrab" required class="input-field">
+                            <input type="text" id="site_name" placeholder="BroqInsta" required class="input-field">
                         </div>
                         <div class="space-y-3">
                             <label
@@ -123,7 +123,7 @@
                 const res = await fetch('/api/admin/settings');
                 const data = await res.json();
                 if (data.success) {
-                    document.getElementById('site_name').value = data.settings.site_name || 'InstaGrab';
+                    document.getElementById('site_name').value = data.settings.site_name || 'BroqInsta';
                     document.getElementById('contact_email').value = data.settings.contact_email || 'contact@infiniterankers.com';
                 }
             } catch (err) { console.error('CoreSync: Failed to pull settings'); }

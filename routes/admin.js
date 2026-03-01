@@ -12,7 +12,7 @@ router.get('/settings', (req, res) => {
             api_key: settings.api_key || '',
             api_host: settings.api_host || '',
             api_endpoint: settings.api_endpoint || '',
-            site_name: settings.site_name || 'InstaGrab',
+            site_name: settings.site_name || 'BroqInsta',
             contact_email: settings.contact_email || 'contact@infiniterankers.com',
             ads_header: settings.ads_header || ''
         }

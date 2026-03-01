@@ -1,4 +1,4 @@
-# InstaGrab - Instagram Video Downloader
+# BroqInsta - Instagram Video Downloader
 
 Professional Instagram video, reel, and photo downloader with a premium SaaS design and integrated admin dashboard.
 
@@ -24,7 +24,7 @@ Visit: `http://localhost:3000`
 
 ## 🛡️ Admin Access
 Visit `/admin/login.html`
-Default: `admin@instagrab.com` / `Admin@123456`
+Default: `admin@broqinsta.com` / `Admin@123456`
 
 ## 📝 License
 MIT License

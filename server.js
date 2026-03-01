@@ -12,7 +12,7 @@ const { initSchema, Settings, Posts, Pages } = require('./models/database');
 const securityFilter = require('./middleware/securityFilter');
 
 // --- AUTO INITIALIZE ---
-console.log('🚀 Starting InstaGrab Server...');
+console.log('🚀 Starting BroqInsta Server...');
 console.log('📦 Checking database...');
 try {
     initSchema();
@@ -28,10 +28,10 @@ try {
 async function initializeDefaultAdmin() {
     try {
         const { Admin } = require('./models/database');
-        const existingAdmin = Admin.findByEmail(process.env.ADMIN_EMAIL || 'admin@instagrab.com');
+        const existingAdmin = Admin.findByEmail(process.env.ADMIN_EMAIL || 'admin@broqinsta.com');
 
         if (!existingAdmin) {
-            const email = process.env.ADMIN_EMAIL || 'admin@instagrab.com';
+            const email = process.env.ADMIN_EMAIL || 'admin@broqinsta.com';
             const password = process.env.ADMIN_PASSWORD || 'ChangeMe@123456';
 
             await Admin.create(email, password, 'Administrator');
@@ -78,10 +78,10 @@ const sessionStore = new SQLiteStore({
 
 app.use(session({
     store: sessionStore,
-    secret: Settings.get('session_secret') || 'instagrab_production_secret',
+    secret: Settings.get('session_secret') || 'broqinsta_production_secret',
     resave: false,
     saveUninitialized: false,
-    name: 'instagrab.sid', // Custom cookie name
+    name: 'broqinsta.sid', // Custom cookie name
     cookie: {
         secure: false, // Set to true only if using HTTPS + trust proxy
         httpOnly: true,

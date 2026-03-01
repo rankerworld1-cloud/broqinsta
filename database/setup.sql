@@ -1,4 +1,4 @@
--- InstaGrab Database Setup Script
+-- BroqInsta Database Setup Script
 -- Creating tables for Hostinger Shared Hosting
 
 -- 1. Admins Table
@@ -102,11 +102,11 @@ CREATE TABLE IF NOT EXISTS injected_scripts (
 -- Store password hash for Admin@123456
 -- Generated hash: $2b$10$iMvIs6sA.XNUn20b1KjCOuX/F8Oms7p8Kk.rV3S6h6QvC1xY1F5m2
 INSERT OR IGNORE INTO admins (email, password, name, role) 
-VALUES ('admin@instagrab.com', '$2b$10$iMvIs6sA.XNUn20b1KjCOuX/F8Oms7p8Kk.rV3S6h6QvC1xY1F5m2', 'InstaGrab Admin', 'admin');
+VALUES ('admin@broqinsta.com', '$2b$10$iMvIs6sA.XNUn20b1KjCOuX/F8Oms7p8Kk.rV3S6h6QvC1xY1F5m2', 'BroqInsta Admin', 'admin');
 
 -- Default Settings
 INSERT OR IGNORE INTO site_settings (setting_key, setting_value, setting_type) VALUES 
-('site_name', 'InstaGrab', 'text'),
+('site_name', 'BroqInsta', 'text'),
 ('rapidapi_key', '607fd753e3mshf81b2c647e363f0p198126jsndbd3f37d0d0', 'text'),
 ('rapidapi_host', 'instagram-downloader-download-instagram-stories-videos4.p.rapidapi.com', 'text'),
 ('api_endpoint', 'https://instagram-downloader-download-instagram-stories-videos4.p.rapidapi.com/convert', 'text'),

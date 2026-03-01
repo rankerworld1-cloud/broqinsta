@@ -32,7 +32,7 @@ class Settings {
 
     static async initializeDefaults() {
         const defaults = [
-            { key: 'site_name', value: 'InstaGrab' },
+            { key: 'site_name', value: 'BroqInsta' },
             { key: 'rapidapi_key', value: process.env.RAPIDAPI_KEY || '' },
             { key: 'rapidapi_host', value: process.env.RAPIDAPI_HOST || 'instagram-downloader-download-instagram-stories-videos4.p.rapidapi.com' },
             { key: 'api_endpoint', value: process.env.API_ENDPOINT || 'https://instagram-downloader-download-instagram-stories-videos4.p.rapidapi.com/convert' },

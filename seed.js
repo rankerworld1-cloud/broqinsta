@@ -7,17 +7,17 @@ async function seed() {
         console.log('🌱 Seeding database...');
 
         // Seed Admin
-        const adminEmail = 'admin@instagrab.com';
+        const adminEmail = 'admin@broqinsta.com';
         const existingAdmin = await User.findByEmail(adminEmail);
 
         if (!existingAdmin) {
             await User.create({
                 email: adminEmail,
                 password: 'Admin@123456',
-                name: 'InstaGrab Admin',
+                name: 'BroqInsta Admin',
                 role: 'admin'
             });
-            console.log('✅ Default admin created: admin@instagrab.com / Admin@123456');
+            console.log('✅ Default admin created: admin@broqinsta.com / Admin@123456');
         } else {
             console.log('ℹ️ Admin user already exists.');
         }

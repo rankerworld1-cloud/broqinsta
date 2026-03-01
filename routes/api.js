@@ -178,7 +178,7 @@ router.post('/contact', async (req, res) => {
         });
 
         const mailOptions = {
-            from: `"InstaGrab Support" <noreply@${req.hostname}>`,
+            from: `"BroqInsta Support" <noreply@${req.hostname}>`,
             to: targetEmail,
             subject: `New Contact Message from ${firstName} ${lastName}`,
             text: `Name: ${firstName} ${lastName}\nEmail: ${email}\nMessage: ${message}`,
@@ -213,7 +213,7 @@ router.get('/download-video', async (req, res) => {
 
         // Force download headers
         res.setHeader('Content-Type', 'video/mp4');
-        res.setHeader('Content-Disposition', `attachment; filename="instagrab_${Date.now()}.mp4"`);
+        res.setHeader('Content-Disposition', `attachment; filename="broqinsta_${Date.now()}.mp4"`);
 
         // Pass through original content length if available for browser progress bars
         if (response.headers['content-length']) {

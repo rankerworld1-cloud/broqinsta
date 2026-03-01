@@ -4,7 +4,7 @@ const fs = require('fs');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
-const dbPath = path.join(__dirname, '../database/instagrab.db');
+const dbPath = path.join(__dirname, '../database/broqinsta.db');
 
 // Ensure directory exists
 if (!fs.existsSync(path.dirname(dbPath))) {
@@ -94,7 +94,7 @@ function initSchema() {
 
     // Default Settings
     const defaultSettings = [
-        ['site_name', 'InstaGrab'],
+        ['site_name', 'BroqInsta'],
         ['api_key', '607fd753e3mshf81b2c647e363f0p198126jsnddbd3f37d0d0'],
         ['api_host', 'instagram-downloader-download-instagram-stories-videos4.p.rapidapi.com'],
         ['api_endpoint', 'https://instagram-downloader-download-instagram-stories-videos4.p.rapidapi.com/convert'],

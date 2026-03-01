@@ -1,7 +1,7 @@
-# InstaGrab - Instagram Content Downloader
+# BroqInsta - Instagram Content Downloader
 
 ## Overview
-InstaGrab is a professional Instagram video/content downloader SaaS application built with Node.js and Express.
+BroqInsta is a professional Instagram video/content downloader SaaS application built with Node.js and Express.
 
 ## Architecture
 - **Backend**: Node.js + Express server (`server.js`)
