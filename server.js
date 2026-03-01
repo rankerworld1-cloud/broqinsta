@@ -41,7 +41,7 @@ async function initializeDefaultAdmin() {
             console.log('⚠️  DEFAULT ADMIN ACCOUNT CREATED');
             console.log('⚠️  ═══════════════════════════════════════════');
             console.log('📧 Email:', email);
-            console.log('🔑 Password:', password);
+            console.log('🔑 Password: [SET FROM ENVIRONMENT]');
             console.log('⚠️  ═══════════════════════════════════════════');
             console.log('⚠️  CHANGE PASSWORD IMMEDIATELY AFTER LOGIN!');
             console.log('⚠️  Login at: https://yourdomain.com/admin/login.html');
