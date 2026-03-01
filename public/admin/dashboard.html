@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - InstaGrab Production Control</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: #6B7280;
+            font-weight: 700;
+            font-size: 0.875rem;
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            color: #7C3AED;
+            background: #F3F4F6;
+        }
+
+        .stat-card-admin {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid #F3F4F6;
+        }
+    </style>
+</head>
+
+<body class="bg-[#FAFBFC] min-h-screen flex flex-col md:flex-row">
+    <!-- Sidebar -->
+    <aside class="w-full md:w-72 bg-white border-r border-gray-100 p-8 flex flex-col z-50">
+        <div class="flex items-center space-x-3 mb-16">
+            <div class="w-10 h-10 bg-gray-50 rounded-xl p-1 shadow-sm">
+                <img src="../images/logo.png" class="w-full h-full object-contain">
+            </div>
+            <span class="text-xl font-black italic">InstaGrab<span class="text-purple-600">.</span></span>
+        </div>
+
+        <nav class="space-y-4 flex-grow">
+            <a href="/admin" class="sidebar-link active">
+                <span class="mr-3">📊</span> Dashboard
+            </a>
+            <a href="/admin/api-settings.html" class="sidebar-link">
+                <span class="mr-3">🔑</span> API Config
+            </a>
+            <a href="/admin/blog-manager.html" class="sidebar-link">
+                <span class="mr-3">📝</span> Content Mgr
+            </a>
+            <a href="/admin/pages-manager.html" class="sidebar-link">
+                <span class="mr-3">📄</span> Pages Mgr
+            </a>
+            <a href="/admin/ads-manager.html" class="sidebar-link">
+                <span class="mr-3">📢</span> Ad Manager
+            </a>
+            <a href="/admin/settings.html" class="sidebar-link">
+                <span class="mr-3">⚙️</span> Site Settings
+            </a>
+            <a href="/admin/scripts-manager.html" class="sidebar-link">
+                <span class="mr-3">🛠️</span> Advanced Tools
+            </a>
+        </nav>
+
+        <div class="mt-auto pt-8 border-t border-gray-50">
+            <a href="/api/admin/logout" class="sidebar-link text-red-500 hover:bg-red-50">
+                <span class="mr-3">🚪</span> Terminate Session
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-grow p-8 md:p-12 overflow-y-auto">
+        <header class="flex justify-between items-center mb-16 stagger-in">
+            <div>
+                <h1 class="text-4xl font-black text-gray-900">Platform Overview</h1>
+                <p class="text-gray-400 font-bold uppercase tracking-widest text-[10px] mt-2">Production Environment:
+                    STABLE</p>
+            </div>
+            <div class="flex space-x-4">
+                <div
+                    class="px-4 py-2 bg-green-50 text-green-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-green-100">
+                    Live Status
+                </div>
+            </div>
+        </header>
+
+        <!-- Metrics Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16 stagger-in">
+            <div class="stat-card-admin">
+                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4">Total Extractions</p>
+                <div class="text-4xl font-black text-gray-900" id="totalDownloads">0</div>
+                <div class="mt-4 text-[10px] font-bold text-green-500">↑ 12% Growth</div>
+            </div>
+            <div class="stat-card-admin">
+                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4">Avg Processing Time</p>
+                <div class="text-4xl font-black text-gray-900">0.8s</div>
+                <div class="mt-4 text-[10px] font-bold text-purple-500">Optimized</div>
+            </div>
+            <div class="stat-card-admin">
+                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4">Unique Sessions</p>
+                <div class="text-4xl font-black text-gray-900" id="activeUsers">0</div>
+                <div class="mt-4 text-[10px] font-bold text-blue-500">Real-time</div>
+            </div>
+            <div class="stat-card-admin">
+                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4">System Uptime</p>
+                <div class="text-4xl font-black text-gray-900">100%</div>
+                <div class="mt-4 text-[10px] font-bold text-amber-500">Full Redundancy</div>
+            </div>
+        </div>
+
+        <!-- Recent Logs -->
+        <div class="glass-card p-10 rounded-[2.5rem] border-none shadow-sm animate-on-scroll">
+            <div class="flex justify-between items-center mb-10">
+                <h3 class="text-2xl font-black text-gray-900">Real-time Activity Stream</h3>
+                <button onclick="location.reload()"
+                    class="p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">🔄</button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr
+                            class="text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-50">
+                            <th class="pb-6">Timestamp</th>
+                            <th class="pb-6">Request ID / URL</th>
+                            <th class="pb-6">Client Identity</th>
+                            <th class="pb-6 text-right">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logsList" class="text-sm font-bold text-gray-600">
+                        <!-- Logs follow professional data pattern -->
+                        <tr>
+                            <td colspan="4" class="py-12 text-center text-gray-300 italic">Syncing with secure logs
+                                database...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        async function fetchStats() {
+            try {
+                const res = await fetch('/api/admin/stats');
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('totalDownloads').innerText = data.totalDownloads.toLocaleString();
+                    document.getElementById('activeUsers').innerText = data.activeUsers.toLocaleString();
+
+                    const logsList = document.getElementById('logsList');
+                    logsList.innerHTML = data.recentLogs.map(log => `
+                        <tr class="border-b border-gray-50">
+                            <td class="py-6 text-gray-400">${new Date(log.created_at).toLocaleTimeString()}</td>
+                            <td class="py-6 font-mono text-[11px] max-w-[200px] truncate text-gray-900">${log.url}</td>
+                            <td class="py-6 text-xs">${log.ip}</td>
+                            <td class="py-6 text-right">
+                                <span class="px-3 py-1 bg-${log.status === 'success' ? 'green' : 'red'}-50 text-${log.status === 'success' ? 'green' : 'red'}-600 rounded-full text-[9px] uppercase tracking-tighter">
+                                    ${log.status}
+                                </span>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (err) {
+                console.error('System sync failure');
+            }
+        }
+        fetchStats();
+        setInterval(fetchStats, 30000);
+
+        // Core Scroll Reveal
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => entry.isIntersecting && entry.target.classList.add('visible'));
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+    </script>
+</body>
+
+</html>

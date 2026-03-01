@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Manager - InstaGrab Production</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+    <style>
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: #6B7280;
+            font-weight: 700;
+            font-size: 0.875rem;
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            color: #7C3AED;
+            background: #F3F4F6;
+        }
+
+        .modal-animate {
+            animation: modalFadeIn 0.3s ease-out forwards;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-[#FAFBFC] min-h-screen flex flex-col md:flex-row">
+    <!-- Sidebar -->
+    <aside class="w-full md:w-72 bg-white border-r border-gray-100 p-8 flex flex-col z-50">
+        <div class="flex items-center space-x-3 mb-16">
+            <div class="w-10 h-10 bg-gray-50 rounded-xl p-1 shadow-sm">
+                <img src="../images/logo.png" class="w-full h-full object-contain">
+            </div>
+            <span class="text-xl font-black italic">InstaGrab<span class="text-purple-600">.</span></span>
+        </div>
+
+        <nav class="space-y-4 flex-grow">
+            <a href="/admin" class="sidebar-link">
+                <span class="mr-3">📊</span> Dashboard
+            </a>
+            <a href="/admin/api-settings.html" class="sidebar-link">
+                <span class="mr-3">🔑</span> API Config
+            </a>
+            <a href="/admin/blog-manager.html" class="sidebar-link active">
+                <span class="mr-3">📝</span> Content Mgr
+            </a>
+            <a href="/admin/pages-manager.html" class="sidebar-link">
+                <span class="mr-3">📄</span> Pages Mgr
+            </a>
+            <a href="/admin/ads-manager.html" class="sidebar-link">
+                <span class="mr-3">📢</span> Ad Manager
+            </a>
+            <a href="/admin/settings.html" class="sidebar-link">
+                <span class="mr-3">⚙️</span> Site Settings
+            </a>
+            <a href="/admin/scripts-manager.html" class="sidebar-link">
+                <span class="mr-3">🛠️</span> Advanced Tools
+            </a>
+        </nav>
+
+        <div class="mt-auto pt-8 border-t border-gray-50">
+            <a href="/api/admin/logout" class="sidebar-link text-red-500 hover:bg-red-50">
+                <span class="mr-3">🚪</span> Terminate Session
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-grow p-8 md:p-12 overflow-y-auto">
+        <header class="flex justify-between items-center mb-16 stagger-in">
+            <div>
+                <h1 class="text-4xl font-black text-gray-900">Content Logic</h1>
+                <p class="text-gray-400 font-bold uppercase tracking-widest text-[10px] mt-2">Manage SEO Post
+                    Architecture</p>
+            </div>
+            <button id="addPostBtn" class="btn-primary shadow-glow">
+                <span>+ Create New Post</span>
+            </button>
+        </header>
+
+        <!-- Posts Table -->
+        <div class="glass-card p-10 rounded-[2.5rem] border-none shadow-sm animate-on-scroll">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr
+                            class="text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-50">
+                            <th class="pb-6">Post Identity / Link</th>
+                            <th class="pb-6 text-center">Visibility</th>
+                            <th class="pb-6">Deployment Date</th>
+                            <th class="pb-6 text-right">Operations</th>
+                        </tr>
+                    </thead>
+                    <tbody id="blogPostsTable" class="text-sm font-bold text-gray-600">
+                        <!-- Data sync -->
+                        <tr>
+                            <td colspan="4" class="py-12 text-center text-gray-300 italic">Syncing with CMS database...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Post Modal -->
+    <div id="postModal"
+        class="hidden fixed inset-0 bg-gray-900/60 backdrop-blur-md z-[1000] flex items-center justify-center p-4">
+        <div
+            class="bg-white w-full max-w-4xl rounded-[3rem] p-12 max-h-[90vh] overflow-y-auto shadow-2xl modal-animate">
+            <div class="flex justify-between items-center mb-10">
+                <h2 id="modalTitle" class="text-3xl font-black text-gray-900">System Entry</h2>
+                <button id="closeModal" class="text-3xl text-gray-400 hover:text-gray-900 transition-colors">×</button>
+            </div>
+
+            <form id="postForm" class="space-y-8">
+                <input type="hidden" id="postId">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="space-y-3">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 px-2">Production
+                            Title</label>
+                        <input type="text" id="postTitle" placeholder="The Ultimate Guide to Reels" required
+                            class="input-field">
+                    </div>
+                    <div class="space-y-3">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 px-2">SEO Slug
+                            Path</label>
+                        <input type="text" id="postSlug" placeholder="ultimate-reels-guide" required
+                            class="input-field">
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 px-2">Professional
+                        Excerpt</label>
+                    <textarea id="postExcerpt" rows="2" placeholder="Brief summary for indexing..."
+                        class="input-field resize-none"></textarea>
+                </div>
+
+                <div class="space-y-3">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 px-2">Meta Description
+                        (SEO)</label>
+                    <textarea id="postMetaDescription" rows="2" placeholder="Brief description for search engines..."
+                        class="input-field resize-none"></textarea>
+                </div>
+
+                <div class="space-y-3">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 px-2">Featured Image
+                        URL (Optional)</label>
+                    <input type="url" id="postFeaturedImage" placeholder="https://example.com/image.jpg"
+                        class="input-field">
+                </div>
+
+                <div class="space-y-3">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 px-2">Tags (Comma
+                        separated)</label>
+                    <input type="text" id="postTags" placeholder="tag1, tag2, tag3" class="input-field">
+                </div>
+
+                <div class="space-y-3">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 px-2">Rich Text Data
+                        (HTML Supported)</label>
+                    <div class="relative">
+                        <textarea id="postContent" rows="12" placeholder="Construct post data here..."
+                            class="input-field font-mono text-sm resize-none"></textarea>
+                    </div>
+                </div>
+
+                <div class="flex justify-end pt-6 space-x-6">
+                    <button type="submit" id="saveBtn" class="btn-primary px-16 shadow-glow">
+                        <span>Deploy Post</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById('postModal');
+        const postForm = document.getElementById('postForm');
+        const postId = document.getElementById('postId');
+        const postTitle = document.getElementById('postTitle');
+        const postSlug = document.getElementById('postSlug');
+        const postExcerpt = document.getElementById('postExcerpt');
+        const postMetaDescription = document.getElementById('postMetaDescription');
+        const postFeaturedImage = document.getElementById('postFeaturedImage');
+        const postTags = document.getElementById('postTags');
+        const postContent = document.getElementById('postContent');
+        const modalTitle = document.getElementById('modalTitle');
+        const saveBtn = document.getElementById('saveBtn');
+
+        let allPosts = [];
+
+        // Dynamic Slug logic
+        postTitle.oninput = () => {
+            if (!postId.value) {
+                postSlug.value = postTitle.value.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+            }
+        };
+
+        async function loadPosts() {
+            try {
+                const res = await fetch('/api/admin/blog/posts');
+                const data = await res.json();
+                if (data.success) {
+                    allPosts = data.posts;
+                    document.getElementById('blogPostsTable').innerHTML = data.posts.map(post => `
+                        <tr class="border-b border-gray-50 group hover:bg-gray-50/50 transition-colors">
+                            <td class="py-8">
+                                <p class="text-gray-900 font-black">${post.title}</p>
+                                <p class="text-[10px] text-purple-600 font-mono">/blog/${post.slug}</p>
+                            </td>
+                            <td class="py-8 text-center">
+                                <span class="px-4 py-1.5 bg-green-50 text-green-600 rounded-full text-[9px] font-black uppercase tracking-widest border border-green-100">${post.status}</span>
+                            </td>
+                            <td class="py-8 text-gray-400 text-xs">${new Date(post.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}</td>
+                            <td class="py-8 text-right space-x-6">
+                                <a href="/blog/${post.slug}" target="_blank" class="text-xs font-black text-gray-400 hover:text-purple-600 uppercase tracking-widest">Preview</a>
+                                <button onclick="editPost(${post.id})" class="text-xs font-black text-gray-400 hover:text-gray-900 uppercase tracking-widest">Configure</button>
+                                <button onclick="deletePost(${post.id})" class="text-xs font-black text-red-300 hover:text-red-500 uppercase tracking-widest">Erase</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (err) {
+                console.error('CoreCMS: Data sync failed');
+            }
+        }
+
+        function editPost(id) {
+            const post = allPosts.find(p => p.id == id);
+            if (!post) return;
+            postId.value = post.id;
+            postTitle.value = post.title;
+            postSlug.value = post.slug;
+            postExcerpt.value = post.excerpt;
+            postMetaDescription.value = post.meta_description || '';
+            postFeaturedImage.value = post.featured_image || '';
+            postTags.value = post.tags || '';
+            postContent.value = post.content;
+            modalTitle.innerText = 'Modify Post Architecture';
+            saveBtn.innerHTML = '<span>Update Deployment</span>';
+            modal.classList.remove('hidden');
+        }
+
+        async function deletePost(id) {
+            if (!confirm('Authorize permanent erasure of this content node?')) return;
+            const res = await fetch(`/api/admin/blog/posts/${id}`, { method: 'DELETE' });
+            if ((await res.json()).success) loadPosts();
+        }
+
+        document.getElementById('addPostBtn').onclick = () => {
+            postForm.reset();
+            postId.value = '';
+            modalTitle.innerText = 'New Content Node';
+            saveBtn.innerHTML = '<span>Deploy Post</span>';
+            modal.classList.remove('hidden');
+        };
+
+        document.getElementById('closeModal').onclick = () => modal.classList.add('hidden');
+
+        postForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const id = postId.value;
+            const method = id ? 'PUT' : 'POST';
+            const url = id ? `/api/admin/blog/posts/${id}` : '/api/admin/blog/posts';
+            const res = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: postTitle.value,
+                    slug: postSlug.value,
+                    excerpt: postExcerpt.value,
+                    meta_description: postMetaDescription.value,
+                    featured_image: postFeaturedImage.value,
+                    tags: postTags.value,
+                    content: CKEDITOR.instances.postContent.getData(),
+                    status: 'published'
+                })
+            });
+            if ((await res.json()).success) {
+                modal.classList.add('hidden');
+                loadPosts();
+            }
+        };
+
+        // Initialize CKEditor
+        CKEDITOR.replace('postContent', {
+            height: 400,
+            removeButtons: 'PasteFromWord'
+        });
+
+        // Update CKEditor content on edit
+        function updateEditorContent(content) {
+            CKEDITOR.instances.postContent.setData(content);
+        }
+
+        // Add to editPost function
+        const originalEditPost = editPost;
+        window.editPost = (id) => {
+            originalEditPost(id);
+            const post = allPosts.find(p => p.id == id);
+            if (post) updateEditorContent(post.content);
+        };
+
+        // Add to addPostBtn click
+        const originalAddPostBtn = document.getElementById('addPostBtn').onclick;
+        document.getElementById('addPostBtn').onclick = () => {
+            originalAddPostBtn();
+            updateEditorContent('');
+        };
+
+        // Sync CKEditor before submit
+        postForm.addEventListener('submit', () => {
+            postContent.value = CKEDITOR.instances.postContent.getData();
+        });
+
+        loadPosts();
+        // Scroll Observe
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => entry.isIntersecting && entry.target.classList.add('visible'));
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+    </script>
+</body>
+
+</html>

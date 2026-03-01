@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How it Works - InstaGrab Step-by-Step Production Guide</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .step-number {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #7C3AED, #EC4899);
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 20px;
+            box-shadow: 0 8px 20px rgba(124, 58, 237, 0.3);
+            position: relative;
+            z-index: 10;
+        }
+
+        .timeline-connector {
+            position: absolute;
+            top: 48px;
+            left: 24px;
+            bottom: -80px;
+            width: 2px;
+            background: linear-gradient(to bottom, #7C3AED, #EC4899, transparent);
+            z-index: 1;
+        }
+
+        .step-visual {
+            background: white;
+            border-radius: 2rem;
+            padding: 3rem;
+            box-shadow: var(--shadow-md);
+            transition: all 0.5s ease;
+        }
+
+        .step-card:hover .step-visual {
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: var(--shadow-lg);
+        }
+    </style>
+</head>
+
+<body class="bg-[#FAFBFC] min-h-screen flex flex-col">
+    <!-- Background Orbs -->
+    <div class="hero-background">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2" style="right: auto; left: 60%; top: -10%;"></div>
+        <div class="gradient-orb orb-3"></div>
+    </div>
+
+    <!-- Navigation -->
+    <header class="py-6 px-4 relative z-50">
+        <nav class="container mx-auto flex justify-between items-center">
+            <a href="/" class="flex items-center space-x-3 group">
+                <div class="w-12 h-12 flex items-center justify-center bg-white rounded-2xl shadow-md p-1">
+                    <img src="images/logo.png" alt="InstaGrab" class="w-full h-full object-contain">
+                </div>
+                <span class="text-2xl font-black italic">InstaGrab<span class="text-purple-600">.</span></span>
+            </a>
+            <div
+                class="hidden md:flex items-center space-x-8 text-xs font-bold uppercase tracking-widest text-gray-500">
+                <a href="/how-it-works" class="text-purple-600 transition-colors">Guide</a>
+                <a href="/blog" class="hover:text-purple-600 transition-colors">Blog</a>
+                <a href="/faq" class="hover:text-purple-600 transition-colors">FAQ</a>
+                <a href="/"
+                    class="bg-gray-900 text-white px-6 py-2.5 rounded-full hover:bg-purple-600 transition-all font-black">Get
+                    Started</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-24 max-w-5xl">
+        <div class="text-center mb-32 stagger-in">
+            <h1 class="text-64px font-black text-gray-900 mb-6 italic">Simple as 1-2-3.</h1>
+            <p class="text-xl text-gray-500 max-w-2xl mx-auto font-medium leading-relaxed">
+                We've spent thousands of hours perfecting the technology so you can save content in seconds.
+            </p>
+        </div>
+
+        <div class="space-y-32">
+            <!-- Step 1 -->
+            <div class="flex flex-col md:flex-row gap-16 items-center step-card">
+                <div class="md:w-1/2 space-y-8 stagger-in">
+                    <div class="relative">
+                        <div class="step-number">1</div>
+                        <div class="timeline-connector"></div>
+                    </div>
+                    <div class="space-y-4">
+                        <h2 class="text-4xl font-black text-gray-900">Secure Link Acquisition</h2>
+                        <p class="text-lg text-gray-500 font-medium leading-relaxed">
+                            Navigate to Instagram and find the content you wish to preserve. Use the platform's native
+                            share feature to Copy the direct URL to your clipboard.
+                        </p>
+                    </div>
+                </div>
+                <div class="md:w-1/2 w-full animate-on-scroll">
+                    <div class="step-visual text-8xl flex items-center justify-center">🔗</div>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="flex flex-col md:flex-row-reverse gap-16 items-center step-card">
+                <div class="md:w-1/2 space-y-8 stagger-in">
+                    <div class="relative">
+                        <div class="step-number">2</div>
+                        <div class="timeline-connector"></div>
+                    </div>
+                    <div class="space-y-4">
+                        <h2 class="text-4xl font-black text-gray-900">Advanced Edge Detection</h2>
+                        <p class="text-lg text-gray-500 font-medium leading-relaxed">
+                            Paste the link into the InstaGrab dashboard. Our systems instantly perform a secure
+                            handshake with the media servers to verify content availability.
+                        </p>
+                    </div>
+                </div>
+                <div class="md:w-1/2 w-full animate-on-scroll">
+                    <div class="step-visual text-8xl flex items-center justify-center">⚡</div>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="flex flex-col md:flex-row gap-16 items-center step-card">
+                <div class="md:w-1/2 space-y-8 stagger-in">
+                    <div class="relative">
+                        <div class="step-number">3</div>
+                    </div>
+                    <div class="space-y-4">
+                        <h2 class="text-4xl font-black text-gray-900">HD Bitrate Extraction</h2>
+                        <p class="text-lg text-gray-500 font-medium leading-relaxed">
+                            Review your content and click Download. Our servers relay the highest available resolution
+                            directly to your device with zero additional compression.
+                        </p>
+                    </div>
+                </div>
+                <div class="md:w-1/2 w-full animate-on-scroll">
+                    <div class="step-visual text-8xl flex items-center justify-center">🎥</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-48 text-center animate-on-scroll">
+            <div class="glass-card inline-block p-12 max-w-2xl bg-gray-900 text-white border-none">
+                <h3 class="text-3xl font-black mb-6">Ready to Experience Elite Performance?</h3>
+                <p class="text-gray-400 mb-10 text-lg">Join thousands of creators who use InstaGrab for professional
+                    media management.</p>
+                <a href="/" class="btn-primary px-12 py-6 text-xl shadow-glow">Start Your First Download</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-gray-100 bg-white/50 backdrop-blur-md">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">© 2026 InstaGrab | Engineered by
+                <a href="https://infiniterankers.com" target="_blank"
+                    class="text-gray-900 hover:text-purple-600 transition-colors">Infinite Rankers</a></p>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+
+</html>

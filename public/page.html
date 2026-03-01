@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page - InstaGrab Official Publication</title>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5905358857319449"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        #page-content p {
+            margin-bottom: 2rem;
+        }
+
+        #page-content h2 {
+            font-size: 2rem;
+            font-weight: 900;
+            margin-top: 4rem;
+            margin-bottom: 1.5rem;
+            color: #111827;
+        }
+
+        #page-content h3 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            color: #111827;
+        }
+
+        #page-content ul,
+        #page-content ol {
+            margin-bottom: 2rem;
+            padding-left: 1.5rem;
+        }
+
+        #page-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        #page-content img {
+            border-radius: 2rem;
+            margin: 3rem 0;
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+        }
+
+        #page-content a {
+            color: #7C3AED;
+            font-weight: 700;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body class="bg-[#FAFBFC] min-h-screen flex flex-col">
+    <!-- Navigation -->
+    <header class="py-6 px-4">
+        <nav class="container mx-auto flex justify-between items-center">
+            <a href="/" class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-white rounded-xl shadow-sm p-1">
+                    <img src="/images/logo.png" alt="InstaGrab" class="w-full h-full object-contain">
+                </div>
+                <span class="text-xl font-black italic">InstaGrab<span class="text-purple-600">.</span></span>
+            </a>
+            <a href="/"
+                class="text-xs font-black uppercase tracking-widest text-gray-400 hover:text-gray-900 transition-colors">←
+                Back to Home</a>
+        </nav>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-24 max-w-4xl">
+        <article class="stagger-in">
+            <div class="mb-16 text-center">
+                <div id="page-meta"
+                    class="flex items-center justify-center space-x-6 text-[10px] font-black uppercase tracking-widest text-gray-400 mb-8">
+                    <span>Page</span>
+                    <span>●</span>
+                    <span id="page-date">Publishing...</span>
+                </div>
+                <h1 id="page-title" class="text-5xl md:text-6xl font-black text-gray-900 leading-tight mb-12">Page
+                    Title Protocol</h1>
+                <div id="page-excerpt"
+                    class="text-xl text-gray-500 font-medium leading-relaxed max-w-2xl mx-auto italic">
+                    Fetching page content...
+                </div>
+            </div>
+
+            <div class="glass-card p-12 md:p-20 rounded-[4rem] bg-white shadow-2xl">
+                <div id="page-content" class="text-lg text-gray-600 font-medium leading-[1.8] tracking-tight">
+                    <!-- Dynamic Stream -->
+                </div>
+            </div>
+        </article>
+
+        <div class="mt-32 text-center animate-on-scroll">
+            <div class="inline-block p-12 glass-card bg-gray-900 text-white border-none">
+                <h3 class="text-2xl font-black mb-6">Need more media tools?</h3>
+                <p class="text-gray-400 mb-8 font-medium">Power your workflow with the world's most elegant downloader.
+                </p>
+                <a href="/" class="btn-primary px-12 py-5 font-black">Try InstaGrab Now</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="py-12 border-t border-gray-100 bg-white/50 backdrop-blur-md">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">© 2026 InstaGrab | Powered by <a
+                    href="https://infiniterankers.com" target="_blank" class="text-gray-900">Infinite Rankers</a></p>
+        </div>
+    </footer>
+
+    <script>
+        // Ad Inserter Logic
+        async function injectAds() {
+            try {
+                const res = await fetch('/api/ads');
+                const data = await res.json();
+                if (!data.success) return;
+
+                // 1. Inject Header Scripts (Ads/Meta Tags)
+                if (data.header) {
+                    const temp = document.createElement('div');
+                    temp.innerHTML = data.header;
+                    Array.from(temp.childNodes).forEach(node => {
+                        if (node.nodeName === 'SCRIPT') {
+                            const script = document.createElement('script');
+                            Array.from(node.attributes).forEach(attr => script.setAttribute(attr.name, attr.value));
+                            script.innerHTML = node.innerHTML;
+                            document.head.appendChild(script);
+                        } else {
+                            document.head.appendChild(node.cloneNode(true));
+                        }
+                    });
+                }
+
+                // 2. Inject Ad Blocks
+                const contentArea = document.getElementById('page-content');
+                data.ads.forEach(ad => {
+                    const adDiv = document.createElement('div');
+                    adDiv.className = 'ad-container my-12 text-center';
+                    adDiv.innerHTML = ad.code;
+
+                    if (ad.position === 'before_content') {
+                        contentArea.prepend(adDiv);
+                    } else if (ad.position === 'after_content') {
+                        contentArea.appendChild(adDiv);
+                    } else if (ad.position === 'middle_content') {
+                        const paras = contentArea.querySelectorAll('p');
+                        const target = paras[ad.paragraph_number - 1] || paras[paras.length - 1];
+                        if (target) target.after(adDiv);
+                    } else if (ad.position === 'footer') {
+                        document.querySelector('footer').prepend(adDiv);
+                    }
+
+                    // Execute scripts inside injected ad blocks
+                    const scripts = adDiv.querySelectorAll('script');
+                    scripts.forEach(oldScript => {
+                        const newScript = document.createElement('script');
+                        Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                        oldScript.parentNode.replaceChild(newScript, oldScript);
+                    });
+                });
+            } catch (e) { console.error('Ad injection failed'); }
+        }
+
+        async function fetchPage() {
+            const slug = window.location.pathname.split('/').pop();
+            try {
+                const res = await fetch(`/api/pages/${slug}`);
+                const data = await res.json();
+                if (data.success && data.page) {
+                    const page = data.page;
+                    document.title = `${page.title} - InstaGrab`;
+                    document.getElementById('page-title').innerText = page.title;
+                    document.getElementById('page-date').innerText = new Date(page.created_at).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' });
+                    document.getElementById('page-excerpt').innerText = page.meta_description || '';
+                    document.getElementById('page-content').innerHTML = page.content;
+
+                    // Trigger Ads after content is loaded
+                    await injectAds();
+                } else {
+                    window.location.href = '/';
+                }
+            } catch (err) {
+                console.error('Page stream failure');
+                window.location.href = '/';
+            }
+        }
+        fetchPage();
+
+        // Scroll Observe for Footer
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => entry.isIntersecting && entry.target.classList.add('visible'));
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+    </script>
+</body>
+
+</html>

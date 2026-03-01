@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kernel Injection - InstaGrab Admin</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: #6B7280;
+            font-weight: 700;
+            font-size: 0.875rem;
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            color: #7C3AED;
+            background: #F3F4F6;
+        }
+
+        .code-editor {
+            font-family: 'JetBrains Mono', monospace;
+            background: #0F172A;
+            color: #E2E8F0;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            width: 100%;
+            min-height: 300px;
+            font-size: 13px;
+            line-height: 1.6;
+            outline: none;
+            border: 1px solid #1E293B;
+            resize: vertical;
+        }
+    </style>
+</head>
+
+<body class="bg-[#FAFBFC] min-h-screen flex flex-col md:flex-row">
+    <!-- Sidebar -->
+    <aside class="w-full md:w-72 bg-white border-r border-gray-100 p-8 flex flex-col z-50">
+        <div class="flex items-center space-x-3 mb-16">
+            <div class="w-10 h-10 bg-gray-50 rounded-xl p-1 shadow-sm">
+                <img src="../images/logo.png" class="w-full h-full object-contain">
+            </div>
+            <span class="text-xl font-black italic">InstaGrab<span class="text-purple-600">.</span></span>
+        </div>
+
+        <nav class="space-y-4 flex-grow">
+            <a href="/admin" class="sidebar-link">
+                <span class="mr-3">📊</span> Dashboard
+            </a>
+            <a href="/admin/api-settings.html" class="sidebar-link">
+                <span class="mr-3">🔑</span> API Config
+            </a>
+            <a href="/admin/blog-manager.html" class="sidebar-link">
+                <span class="mr-3">📝</span> Content Mgr
+            </a>
+            <a href="/admin/pages-manager.html" class="sidebar-link">
+                <span class="mr-3">📄</span> Pages Mgr
+            </a>
+            <a href="/admin/ads-manager.html" class="sidebar-link">
+                <span class="mr-3">📢</span> Ad Manager
+            </a>
+            <a href="/admin/settings.html" class="sidebar-link">
+                <span class="mr-3">⚙️</span> Site Settings
+            </a>
+            <a href="/admin/scripts-manager.html" class="sidebar-link active">
+                <span class="mr-3">🛠️</span> Advanced Tools
+            </a>
+        </nav>
+
+        <div class="mt-auto pt-8 border-t border-gray-50">
+            <a href="/api/admin/logout" class="sidebar-link text-red-500 hover:bg-red-50">
+                <span class="mr-3">🚪</span> Terminate Session
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-grow p-8 md:p-12 overflow-y-auto">
+        <header class="flex justify-between items-center mb-16 stagger-in">
+            <div>
+                <h1 class="text-4xl font-black text-gray-900">Advanced Injection</h1>
+                <p class="text-gray-400 font-bold uppercase tracking-widest text-[10px] mt-2">External Scripts &
+                    Analytics Core</p>
+            </div>
+        </header>
+
+        <div class="max-w-5xl stagger-in">
+            <div class="glass-card p-12 rounded-[2.5rem] bg-white shadow-sm space-y-12">
+                <form id="scriptsForm" class="space-y-12">
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center px-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400">Header
+                                Injection (&lt;head&gt;)</label>
+                            <span class="text-[9px] font-bold text-blue-500 uppercase tracking-tighter">GTM / Facebook
+                                Pixel / Meta</span>
+                        </div>
+                        <textarea id="header_scripts" class="code-editor"
+                            placeholder="<!-- Paste script here -->"></textarea>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center px-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400">Footer
+                                Injection (Before &lt;/body&gt;)</label>
+                            <span class="text-[9px] font-bold text-purple-500 uppercase tracking-tighter">Hotjar / Live
+                                Chat / Analytics</span>
+                        </div>
+                        <textarea id="footer_scripts" class="code-editor"
+                            placeholder="<!-- Paste script here -->"></textarea>
+                    </div>
+
+                    <div class="pt-6 border-t border-gray-50">
+                        <button type="submit" class="btn-primary px-20 shadow-glow">
+                            <span>Execute Injection</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const form = document.getElementById('scriptsForm');
+
+        async function loadScripts() {
+            try {
+                const res = await fetch('/api/admin/settings');
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('header_scripts').value = data.settings.header_scripts || '';
+                    document.getElementById('footer_scripts').value = data.settings.footer_scripts || '';
+                }
+            } catch (err) { console.error('CoreSync: Failed to pull settings'); }
+        }
+
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const payload = {
+                header_scripts: document.getElementById('header_scripts').value,
+                footer_scripts: document.getElementById('footer_scripts').value
+            };
+
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span>Processing Kernel Update...</span>';
+
+            try {
+                const res = await fetch('/api/admin/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if ((await res.json()).success) {
+                    btn.innerHTML = '<span>Execution Successful!</span>';
+                    setTimeout(() => btn.innerHTML = originalText, 2000);
+                }
+            } catch (err) { alert('Injection failed'); }
+        };
+
+        loadScripts();
+    </script>
+</body>
+
+</html>

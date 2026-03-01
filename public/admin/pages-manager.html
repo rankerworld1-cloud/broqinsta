@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pages Manager - InstaGrab Production</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+    <style>
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: #6B7280;
+            font-weight: 700;
+            font-size: 0.875rem;
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            color: #7C3AED;
+            background: #F3F4F6;
+        }
+
+        .modal-animate {
+            animation: modalFadeIn 0.3s ease-out forwards;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-[#FAFBFC] min-h-screen flex flex-col md:flex-row">
+    <!-- Sidebar -->
+    <aside class="w-full md:w-72 bg-white border-r border-gray-100 p-8 flex flex-col z-50">
+        <div class="flex items-center space-x-3 mb-16">
+            <div class="w-10 h-10 bg-gray-50 rounded-xl p-1 shadow-sm">
+                <img src="../images/logo.png" class="w-full h-full object-contain">
+            </div>
+            <span class="text-xl font-black italic">InstaGrab<span class="text-purple-600">.</span></span>
+        </div>
+
+        <nav class="space-y-4 flex-grow">
+            <a href="/admin" class="sidebar-link">
+                <span class="mr-3">📊</span> Dashboard
+            </a>
+            <a href="/admin/api-settings.html" class="sidebar-link">
+                <span class="mr-3">🔑</span> API Config
+            </a>
+            <a href="/admin/blog-manager.html" class="sidebar-link">
+                <span class="mr-3">📝</span> Content Mgr
+            </a>
+            <a href="/admin/pages-manager.html" class="sidebar-link">
+                <span class="mr-3">📄</span> Pages Mgr
+            </a>
+            <a href="/admin/ads-manager.html" class="sidebar-link">
+                <span class="mr-3">📢</span> Ad Manager
+            </a>
+            <a href="/admin/settings.html" class="sidebar-link">
+                <span class="mr-3">⚙️</span> Site Settings
+            </a>
+            <a href="/admin/scripts-manager.html" class="sidebar-link">
+                <span class="mr-3">🛠️</span> Advanced Tools
+            </a>
+        </nav>
+
+        <div class="mt-auto pt-8 border-t border-gray-50">
+            <a href="/api/admin/logout" class="sidebar-link text-red-500 hover:bg-red-50">
+                <span class="mr-3">🚪</span> Terminate Session
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-grow p-8 md:p-12 overflow-y-auto">
+        <header class="flex justify-between items-center mb-16 stagger-in">
+            <div>
+                <h1 class="text-4xl font-black text-gray-900">Page Architecture</h1>
+                <p class="text-gray-400 font-bold uppercase tracking-widest text-[10px] mt-2">Manage Static Pages</p>
+            </div>
+            <button id="addPageBtn" class="btn-primary shadow-glow">
+                <span>+ Create New Page</span>
+            </button>
+        </header>
+
+        <!-- Pages Table -->
+        <div class="glass-card p-10 rounded-[2.5rem] border-none shadow-sm animate-on-scroll">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr
+                            class="text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-50">
+                            <th class="pb-6">Page Identity / Link</th>
+                            <th class="pb-6 text-center">Visibility</th>
+                            <th class="pb-6">Deployment Date</th>
+                            <th class="pb-6 text-right">Operations</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pagesTable" class="text-sm font-bold text-gray-600">
+                        <!-- Data sync -->
+                        <tr>
+                            <td colspan="4" class="py-12 text-center text-gray-300 italic">Syncing with CMS database...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Page Modal -->
+    <div id="pageModal"
+        class="hidden fixed inset-0 bg-gray-900/60 backdrop-blur-md z-[1000] flex items-center justify-center p-4">
+        <div
+            class="bg-white w-full max-w-4xl rounded-[3rem] p-12 max-h-[90vh] overflow-y-auto shadow-2xl modal-animate">
+            <div class="flex justify-between items-center mb-10">
+                <h2 id="modalTitle" class="text-3xl font-black text-gray-900">System Entry</h2>
+                <button id="closeModal" class="text-3xl text-gray-400 hover:text-gray-900 transition-colors">×</button>
+            </div>
+
+            <form id="pageForm" class="space-y-8">
+                <input type="hidden" id="pageId">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="space-y-3">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 px-2">Production
+                            Title</label>
+                        <input type="text" id="pageTitle" placeholder="About Us" required class="input-field">
+                    </div>
+                    <div class="space-y-3">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 px-2">SEO Slug
+                            Path</label>
+                        <input type="text" id="pageSlug" placeholder="about-us" required class="input-field">
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 px-2">Meta Description
+                        (SEO)</label>
+                    <textarea id="pageMetaDescription" rows="2" placeholder="Brief description for search engines..."
+                        class="input-field resize-none"></textarea>
+                </div>
+
+                <div class="space-y-3">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 px-2">Featured Image
+                        URL (Optional)</label>
+                    <input type="url" id="pageFeaturedImage" placeholder="https://example.com/image.jpg"
+                        class="input-field">
+                </div>
+
+                <div class="space-y-3">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 px-2">Page Content
+                        (HTML Supported)</label>
+                    <div class="relative">
+                        <textarea id="pageContent" rows="12" placeholder="Construct page content here..."
+                            class="input-field font-mono text-sm resize-none"></textarea>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 px-2">Page
+                        Status</label>
+                    <select id="pageStatus" class="input-field">
+                        <option value="published">Published</option>
+                        <option value="draft">Draft</option>
+                    </select>
+                </div>
+
+                <div class="flex justify-end pt-6 space-x-6">
+                    <button type="submit" id="saveBtn" class="btn-primary px-16 shadow-glow">
+                        <span>Deploy Page</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById('pageModal');
+        const pageForm = document.getElementById('pageForm');
+        const pageId = document.getElementById('pageId');
+        const pageTitle = document.getElementById('pageTitle');
+        const pageSlug = document.getElementById('pageSlug');
+        const pageMetaDescription = document.getElementById('pageMetaDescription');
+        const pageFeaturedImage = document.getElementById('pageFeaturedImage');
+        const pageContent = document.getElementById('pageContent');
+        const pageStatus = document.getElementById('pageStatus');
+        const modalTitle = document.getElementById('modalTitle');
+        const saveBtn = document.getElementById('saveBtn');
+
+        let allPages = [];
+
+        // Dynamic Slug logic
+        pageTitle.oninput = () => {
+            if (!pageId.value) {
+                pageSlug.value = pageTitle.value.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+            }
+        };
+
+        async function loadPages() {
+            try {
+                const res = await fetch('/api/admin/pages');
+                const data = await res.json();
+                if (data.success) {
+                    allPages = data.pages;
+                    document.getElementById('pagesTable').innerHTML = data.pages.map(page => `
+                        <tr class="border-b border-gray-50 group hover:bg-gray-50/50 transition-colors">
+                            <td class="py-8">
+                                <p class="text-gray-900 font-black">${page.title}</p>
+                                <p class="text-[10px] text-purple-600 font-mono">/${page.slug}</p>
+                            </td>
+                            <td class="py-8 text-center">
+                                <span class="px-4 py-1.5 ${page.status === 'published' ? 'bg-green-50 text-green-600 border-green-100' : 'bg-yellow-50 text-yellow-600 border-yellow-100'} rounded-full text-[9px] font-black uppercase tracking-widest border">${page.status}</span>
+                            </td>
+                            <td class="py-8 text-gray-400 text-xs">${new Date(page.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}</td>
+                            <td class="py-8 text-right space-x-6">
+                                <a href="/${page.slug}" target="_blank" class="text-xs font-black text-gray-400 hover:text-purple-600 uppercase tracking-widest">Preview</a>
+                                <button onclick="editPage(${page.id})" class="text-xs font-black text-gray-400 hover:text-gray-900 uppercase tracking-widest">Configure</button>
+                                <button onclick="deletePage(${page.id})" class="text-xs font-black text-red-300 hover:text-red-500 uppercase tracking-widest">Erase</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (err) {
+                console.error('CoreCMS: Pages data sync failed');
+            }
+        }
+
+        function editPage(id) {
+            const page = allPages.find(p => p.id == id);
+            if (!page) return;
+            pageId.value = page.id;
+            pageTitle.value = page.title;
+            pageSlug.value = page.slug;
+            pageMetaDescription.value = page.meta_description;
+            pageFeaturedImage.value = page.featured_image;
+            pageContent.value = page.content;
+            pageStatus.value = page.status;
+            modalTitle.innerText = 'Modify Page Architecture';
+            saveBtn.innerHTML = '<span>Update Deployment</span>';
+            modal.classList.remove('hidden');
+        }
+
+        async function deletePage(id) {
+            if (!confirm('Authorize permanent erasure of this page?')) return;
+            const res = await fetch(`/api/admin/pages/${id}`, { method: 'DELETE' });
+            if ((await res.json()).success) loadPages();
+        }
+
+        document.getElementById('addPageBtn').onclick = () => {
+            pageForm.reset();
+            pageId.value = '';
+            pageStatus.value = 'published';
+            modalTitle.innerText = 'New Page Node';
+            saveBtn.innerHTML = '<span>Deploy Page</span>';
+            modal.classList.remove('hidden');
+        };
+
+        document.getElementById('closeModal').onclick = () => modal.classList.add('hidden');
+
+        pageForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const id = pageId.value;
+            const method = id ? 'PUT' : 'POST';
+            const url = id ? `/api/admin/pages/${id}` : '/api/admin/pages';
+            const res = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: pageTitle.value,
+                    slug: pageSlug.value,
+                    meta_description: pageMetaDescription.value,
+                    featured_image: pageFeaturedImage.value,
+                    content: CKEDITOR.instances.pageContent.getData(),
+                    status: pageStatus.value
+                })
+            });
+            if ((await res.json()).success) {
+                modal.classList.add('hidden');
+                loadPages();
+            }
+        };
+
+        // Initialize CKEditor
+        CKEDITOR.replace('pageContent', {
+            height: 400,
+            removeButtons: 'PasteFromWord'
+        });
+
+        // Update CKEditor content on edit
+        function updateEditorContent(content) {
+            CKEDITOR.instances.pageContent.setData(content);
+        }
+
+        // Add to editPage function
+        const originalEditPage = editPage;
+        window.editPage = (id) => {
+            originalEditPage(id);
+            const page = allPages.find(p => p.id == id);
+            if (page) updateEditorContent(page.content);
+        };
+
+        // Add to addPageBtn click
+        const originalAddPageBtn = document.getElementById('addPageBtn').onclick;
+        document.getElementById('addPageBtn').onclick = () => {
+            originalAddPageBtn();
+            updateEditorContent('');
+        };
+
+        // Sync CKEditor before submit
+        pageForm.addEventListener('submit', () => {
+            pageContent.value = CKEDITOR.instances.pageContent.getData();
+        });
+
+        loadPages();
+        // Scroll Observe
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => entry.isIntersecting && entry.target.classList.add('visible'));
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+    </script>
+</body>
+
+</html>

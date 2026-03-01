@@ -1,0 +1,18 @@
+modules = ["nodejs-20"]
+[agent]
+expertMode = true
+
+[nix]
+channel = "stable-25_05"
+packages = ["unzip"]
+
+[userenv]
+
+[userenv.shared]
+PORT = "5000"
+NODE_ENV = "production"
+ADMIN_EMAIL = "admin@instagrab.com"
+RATE_LIMIT_WINDOW_MS = "3600000"
+RATE_LIMIT_MAX_REQUESTS = "10"
+RAPIDAPI_HOST = "instagram-downloader-download-instagram-stories-videos4.p.rapidapi.com"
+API_ENDPOINT = "https://instagram-downloader-download-instagram-stories-videos4.p.rapidapi.com/convert"

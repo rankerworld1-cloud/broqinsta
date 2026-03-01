@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Settings - InstaGrab Production</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: #6B7280;
+            font-weight: 700;
+            font-size: 0.875rem;
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            color: #7C3AED;
+            background: #F3F4F6;
+        }
+    </style>
+</head>
+
+<body class="bg-[#FAFBFC] min-h-screen flex flex-col md:flex-row">
+    <!-- Sidebar -->
+    <aside class="w-full md:w-72 bg-white border-r border-gray-100 p-8 flex flex-col z-50">
+        <div class="flex items-center space-x-3 mb-16">
+            <div class="w-10 h-10 bg-gray-50 rounded-xl p-1 shadow-sm">
+                <img src="../images/logo.png" class="w-full h-full object-contain">
+            </div>
+            <span class="text-xl font-black italic">InstaGrab<span class="text-purple-600">.</span></span>
+        </div>
+
+        <nav class="space-y-4 flex-grow">
+            <a href="/admin" class="sidebar-link">
+                <span class="mr-3">📊</span> Dashboard
+            </a>
+            <a href="/admin/api-settings.html" class="sidebar-link">
+                <span class="mr-3">🔑</span> API Config
+            </a>
+            <a href="/admin/blog-manager.html" class="sidebar-link">
+                <span class="mr-3">📝</span> Content Mgr
+            </a>
+            <a href="/admin/pages-manager.html" class="sidebar-link">
+                <span class="mr-3">📄</span> Pages Mgr
+            </a>
+            <a href="/admin/ads-manager.html" class="sidebar-link">
+                <span class="mr-3">📢</span> Ad Manager
+            </a>
+            <a href="/admin/settings.html" class="sidebar-link active">
+                <span class="mr-3">⚙️</span> Site Settings
+            </a>
+            <a href="/admin/scripts-manager.html" class="sidebar-link">
+                <span class="mr-3">🛠️</span> Advanced Tools
+            </a>
+        </nav>
+
+        <div class="mt-auto pt-8 border-t border-gray-50">
+            <a href="/api/admin/logout" class="sidebar-link text-red-500 hover:bg-red-50">
+                <span class="mr-3">🚪</span> Terminate Session
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-grow p-8 md:p-12 overflow-y-auto">
+        <header class="flex justify-between items-center mb-16 stagger-in">
+            <div>
+                <h1 class="text-4xl font-black text-gray-900">Governance</h1>
+                <p class="text-gray-400 font-bold uppercase tracking-widest text-[10px] mt-2">Brand Protocols & Global
+                    Variables</p>
+            </div>
+        </header>
+
+        <div class="max-w-4xl stagger-in">
+            <div class="glass-card p-12 rounded-[2.5rem] bg-white shadow-sm">
+                <form id="globalSettingsForm" class="space-y-10">
+                    <div class="grid md:grid-cols-2 gap-10">
+                        <div class="space-y-3">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 px-2">Brand
+                                Identity</label>
+                            <input type="text" id="site_name" placeholder="InstaGrab" required class="input-field">
+                        </div>
+                        <div class="space-y-3">
+                            <label
+                                class="text-[10px] font-black uppercase tracking-widest text-gray-400 px-2">Communication
+                                Channel</label>
+                            <input type="email" id="contact_email" placeholder="contact@domain.com" required
+                                class="input-field">
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 px-2">Administrator
+                            Credential Update</label>
+                        <input type="password" id="admin_password" placeholder="Set new master password..."
+                            class="input-field text-center tracking-widest">
+                        <p class="text-[9px] text-gray-400 italic px-2">Leave blank to maintain current secure
+                            credentials.</p>
+                    </div>
+
+                    <div class="pt-6 border-t border-gray-50">
+                        <button type="submit" class="btn-primary px-16 shadow-glow">
+                            <span>Update System State</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const form = document.getElementById('globalSettingsForm');
+
+        async function loadSettings() {
+            try {
+                const res = await fetch('/api/admin/settings');
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('site_name').value = data.settings.site_name || 'InstaGrab';
+                    document.getElementById('contact_email').value = data.settings.contact_email || 'contact@infiniterankers.com';
+                }
+            } catch (err) { console.error('CoreSync: Failed to pull settings'); }
+        }
+
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const settings = {
+                site_name: document.getElementById('site_name').value,
+                contact_email: document.getElementById('contact_email').value
+            };
+
+            const newPass = document.getElementById('admin_password').value;
+            if (newPass) settings.admin_password = newPass;
+
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span>Processing...</span>';
+
+            try {
+                const res = await fetch('/api/admin/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(settings)
+                });
+                if ((await res.json()).success) {
+                    btn.innerHTML = '<span>Applied!</span>';
+                    setTimeout(() => btn.innerHTML = originalText, 2000);
+                    if (newPass) document.getElementById('admin_password').value = '';
+                }
+            } catch (err) { alert('System state update failed'); }
+        };
+
+        loadSettings();
+    </script>
+</body>
+
+</html>

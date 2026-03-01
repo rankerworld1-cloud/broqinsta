@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Access - InstaGrab Private Portal</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .login-orb {
+            position: fixed;
+            width: 800px;
+            height: 800px;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(236, 72, 153, 0.2));
+            filter: blur(120px);
+            border-radius: 50%;
+            z-index: -1;
+            animation: moveOrb 20s infinite alternate;
+        }
+
+        @keyframes moveOrb {
+            from {
+                transform: translate(-20%, -20%);
+            }
+
+            to {
+                transform: translate(20%, 20%);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+    <div class="login-orb"></div>
+
+    <div class="w-full max-w-md stagger-in">
+        <div class="text-center mb-12">
+            <div class="w-20 h-20 bg-white rounded-[2rem] shadow-xl flex items-center justify-center mx-auto mb-6 p-2">
+                <img src="../images/logo.png" class="w-full h-full object-contain">
+            </div>
+            <h1 class="text-3xl font-black text-gray-900">Admin Portal</h1>
+            <p class="text-gray-500 font-bold uppercase tracking-widest text-[10px] mt-2">Private Access Only</p>
+        </div>
+
+        <div class="glass-card p-12 rounded-[2.5rem] shadow-2xl bg-white/70">
+            <form id="loginForm" class="space-y-6">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 px-2">Email
+                        Address</label>
+                    <input type="email" id="email" placeholder="admin@example.com" required autofocus
+                        class="input-field">
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 px-2">Administrator
+                        Password</label>
+                    <input type="password" id="password" placeholder="••••••••" required
+                        class="input-field text-center tracking-[0.5em] text-2xl">
+                </div>
+
+                <button type="submit" class="btn-primary w-full py-5 text-lg shadow-glow">
+                    <span>Authorize Session</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                </button>
+
+                <div id="loginError"
+                    class="hidden mt-8 p-4 bg-red-50 text-red-600 rounded-2xl text-xs font-bold text-center border border-red-100 animate-shake">
+                </div>
+            </form>
+        </div>
+
+        <p class="text-center mt-12 text-[10px] font-black uppercase tracking-widest text-gray-400">
+            Secure Encryption Level: 256-Bit AES
+        </p>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorEl = document.getElementById('loginError');
+            const btn = e.target.querySelector('button');
+            const originalBtn = btn.innerHTML;
+
+            btn.innerHTML = '<span>Verifying Protocol...</span>';
+            errorEl.classList.add('hidden');
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    btn.innerHTML = '<span>Authorized! Redirecting...</span>';
+                    setTimeout(() => window.location.href = data.redirect || '/admin', 500);
+                } else {
+                    errorEl.innerText = data.error || 'Access Denied: Invalid Credentials';
+                    errorEl.classList.remove('hidden');
+                    btn.innerHTML = originalBtn;
+                }
+            } catch (err) {
+                errorEl.innerText = 'System Protocol Failure';
+                errorEl.classList.remove('hidden');
+                btn.innerHTML = originalBtn;
+            }
+        };
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insights & Guides - InstaGrab Official Publication</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-[#FAFBFC] min-h-screen flex flex-col">
+    <!-- Background Orbs -->
+    <div class="hero-background">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+    </div>
+
+    <!-- Navigation -->
+    <header class="py-6 px-4 relative z-50">
+        <nav class="container mx-auto flex justify-between items-center">
+            <a href="/" class="flex items-center space-x-3 group">
+                <div class="w-12 h-12 flex items-center justify-center bg-white rounded-2xl shadow-md p-1">
+                    <img src="images/logo.png" alt="InstaGrab" class="w-full h-full object-contain">
+                </div>
+                <span class="text-2xl font-black italic">InstaGrab<span class="text-purple-600">.</span></span>
+            </a>
+            <div
+                class="hidden md:flex items-center space-x-8 text-xs font-bold uppercase tracking-widest text-gray-400">
+                <a href="/how-it-works" class="hover:text-purple-600 transition-colors">Guide</a>
+                <a href="/faq" class="hover:text-purple-600 transition-colors">FAQ</a>
+                <a href="/contact" class="hover:text-purple-600 transition-colors">Support</a>
+                <a href="/"
+                    class="bg-gray-900 text-white px-8 py-3 rounded-full hover:bg-purple-600 transition-all font-black">Downloader</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-24">
+        <div class="text-center mb-24 stagger-in">
+            <h1 class="text-64px font-black text-gray-900 mb-6 italic">Insights.</h1>
+            <p class="text-xl text-gray-500 max-w-2xl mx-auto font-medium">Professional guides, technical updates, and
+                digital strategy for modern creators.</p>
+        </div>
+
+        <div id="blog-posts-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+            <!-- Shimmer effect for loading -->
+            <div class="glass-card p-10 space-y-6 skeleton h-96 rounded-[2.5rem]"></div>
+            <div class="glass-card p-10 space-y-6 skeleton h-96 rounded-[2.5rem]"></div>
+            <div class="glass-card p-10 space-y-6 skeleton h-96 rounded-[2.5rem]"></div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-gray-100 bg-white/50 backdrop-blur-md">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">© 2026 InstaGrab | Powered by <a
+                    href="https://infiniterankers.com" target="_blank" class="text-gray-900">Infinite Rankers</a></p>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+    <script>
+        async function fetchPosts() {
+            try {
+                const res = await fetch('/api/blog/posts');
+                const data = await res.json();
+                if (data.success) {
+                    const grid = document.getElementById('blog-posts-grid');
+                    if (data.posts.length === 0) {
+                        grid.innerHTML = '<div class="col-span-full py-24 text-center text-gray-300 font-black italic text-2xl">Publication sequence empty. Check back soon.</div>';
+                        return;
+                    }
+                    grid.innerHTML = data.posts.map(post => `
+                        <a href="/blog/${post.slug}" class="glass-card p-10 flex flex-col group animate-on-scroll">
+                            <div class="flex-grow space-y-6">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[9px] font-black uppercase tracking-[0.2em] text-purple-600 px-3 py-1 bg-purple-50 rounded-full">Article</span>
+                                    <span class="text-[9px] font-bold text-gray-400 uppercase">${new Date(post.created_at).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</span>
+                                </div>
+                                <h3 class="text-3xl font-black text-gray-900 group-hover:text-purple-600 transition-colors line-clamp-2 leading-tight">${post.title}</h3>
+                                <p class="text-gray-500 font-medium line-clamp-3 leading-relaxed">${post.excerpt}</p>
+                            </div>
+                            <div class="pt-8 mt-8 border-t border-gray-50 flex items-center text-xs font-black uppercase tracking-widest text-gray-900 group-hover:translate-x-2 transition-transform">
+                                Read Data Protocol <span class="ml-2">→</span>
+                            </div>
+                        </a>
+                    `).join('');
+
+                    // Trigger animations
+                    document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+                }
+            } catch (err) {
+                console.error('Publication fetch failure');
+            }
+        }
+        fetchPosts();
+    </script>
+</body>
+
+</html>

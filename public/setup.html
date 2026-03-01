@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InstaGrab - Setup Wizard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #f8fafc;
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-6">
+    <div class="max-w-xl w-full bg-white rounded-[2.5rem] shadow-2xl p-10 md:p-16 border border-gray-100">
+        <!-- Progress Bar -->
+        <div class="flex gap-2 mb-12">
+            <div id="prog-1" class="h-2 flex-grow rounded-full bg-purple-600"></div>
+            <div id="prog-2" class="h-2 flex-grow rounded-full bg-gray-100"></div>
+            <div id="prog-3" class="h-2 flex-grow rounded-full bg-gray-100"></div>
+            <div id="prog-4" class="h-2 flex-grow rounded-full bg-gray-100"></div>
+        </div>
+
+        <!-- Step 1: Welcome -->
+        <div id="step-1" class="step active">
+            <div class="text-6xl mb-8">🚀</div>
+            <h1 class="text-4xl font-black text-gray-900 mb-4">Welcome to InstaGrab</h1>
+            <p class="text-gray-500 mb-10 leading-relaxed text-lg">Deploying to Hostinger is easy. This wizard will help
+                you configure your database and admin account in seconds.</p>
+            <button onclick="nextStep(2); initDb();"
+                class="w-full bg-gray-900 text-white py-5 rounded-2xl text-xl font-bold hover:bg-purple-600 transition-all shadow-xl">
+                Get Started
+            </button>
+        </div>
+
+        <!-- Step 2: Database -->
+        <div id="step-2" class="step">
+            <div class="text-6xl mb-8">📦</div>
+            <h1 class="text-4xl font-black text-gray-900 mb-4">Database Initialization</h1>
+            <p class="text-gray-500 mb-10 text-lg" id="db-msg">Creating tables and default settings...</p>
+            <div id="db-loader" class="flex items-center justify-center py-10">
+                <div class="w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+        </div>
+
+        <!-- Step 3: Admin -->
+        <div id="step-3" class="step">
+            <div class="text-6xl mb-8">👤</div>
+            <h1 class="text-4xl font-black text-gray-900 mb-4">Create Admin</h1>
+            <form id="adminForm" class="space-y-5">
+                <input type="email" id="email" value="admin@instagrab.com" placeholder="Admin Email"
+                    class="w-full px-6 py-4 bg-gray-50 border-2 border-gray-100 rounded-2xl outline-none focus:border-purple-500 transition-all"
+                    required>
+                <input type="password" id="password" placeholder="Admin Password"
+                    class="w-full px-6 py-4 bg-gray-50 border-2 border-gray-100 rounded-2xl outline-none focus:border-purple-500 transition-all"
+                    required>
+                <input type="password" id="confirm" placeholder="Confirm Password"
+                    class="w-full px-6 py-4 bg-gray-50 border-2 border-gray-100 rounded-2xl outline-none focus:border-purple-500 transition-all"
+                    required>
+                <button type="submit"
+                    class="w-full bg-gray-900 text-white py-5 rounded-2xl text-xl font-bold hover:bg-purple-600 transition-all shadow-xl">
+                    Next Step
+                </button>
+            </form>
+        </div>
+
+        <!-- Step 4: API Config -->
+        <div id="step-4" class="step">
+            <div class="text-6xl mb-8">🔑</div>
+            <h1 class="text-4xl font-black text-gray-900 mb-4">API Configuration</h1>
+            <div class="space-y-6">
+                <input type="text" id="apiKey" placeholder="Paste your API Key here..."
+                    class="w-full px-6 py-4 bg-gray-50 border-2 border-gray-100 rounded-2xl outline-none focus:border-purple-500 transition-all">
+                <div id="api-status" class="hidden p-4 rounded-xl text-sm font-bold"></div>
+                <div class="flex gap-4">
+                    <button id="testBtn" onclick="testApi()"
+                        class="flex-grow border-2 border-gray-900 text-gray-900 py-4 rounded-2xl font-bold hover:bg-gray-50 transition-all">
+                        Test Connection
+                    </button>
+                    <button id="finishBtn" onclick="finishSetup()"
+                        class="flex-grow bg-gray-900 text-white py-4 rounded-2xl font-bold hover:bg-purple-600 transition-all shadow-lg opacity-50 cursor-not-allowed"
+                        disabled>
+                        Complete Setup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+
+        function nextStep(s) {
+            document.getElementById(`step-${currentStep}`).classList.remove('active');
+            document.getElementById(`prog-${currentStep}`).classList.remove('bg-purple-600');
+            document.getElementById(`prog-${currentStep}`).classList.add('bg-green-500');
+
+            currentStep = s;
+            document.getElementById(`step-${s}`).classList.add('active');
+            document.getElementById(`prog-${s}`).classList.remove('bg-gray-100');
+            document.getElementById(`prog-${s}`).classList.add('bg-purple-600');
+        }
+
+        async function initDb() {
+            try {
+                const res = await fetch('/api/setup/init-db', { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    setTimeout(() => nextStep(3), 1500);
+                }
+            } catch (err) { alert('DB Init Failed: ' + err.message); }
+        }
+
+        document.getElementById('adminForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirm = document.getElementById('confirm').value;
+
+            if (password !== confirm) return alert('Passwords do not match');
+
+            try {
+                const res = await fetch('/api/setup/create-admin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    nextStep(4);
+                }
+            } catch (err) { alert('Admin Creation Failed'); }
+        };
+
+        async function testApi() {
+            const key = document.getElementById('apiKey').value;
+            if (!key) return alert('Please enter your API Key');
+
+            const btn = document.getElementById('testBtn');
+            const status = document.getElementById('api-status');
+            const finishBtn = document.getElementById('finishBtn');
+
+            btn.disabled = true;
+            btn.innerText = 'Testing...';
+            status.className = 'p-4 rounded-xl text-sm font-bold bg-blue-50 text-blue-700';
+            status.innerText = '⌛ Connecting to Service...';
+            status.classList.remove('hidden');
+
+            try {
+                const res = await fetch('/api/setup/test-api', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    status.className = 'p-4 rounded-xl text-sm font-bold bg-green-100 text-green-700';
+                    status.innerText = `✅ Connection Successful! (Status: ${data.status})`;
+                } else {
+                    status.className = 'p-4 rounded-xl text-sm font-bold bg-red-100 text-red-700';
+                    status.innerText = '❌ Failed: ' + (data.error || 'Invalid Key');
+                    console.error('API Test Error:', data.error);
+                }
+
+                // Always allow finish if they entered a key, even if test failed (safety)
+                finishBtn.disabled = false;
+                finishBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+            } catch (err) {
+                status.className = 'p-4 rounded-xl text-sm font-bold bg-red-100 text-red-700';
+                status.innerText = 'Error testing API: ' + err.message;
+            }
+            finally { btn.disabled = false; btn.innerText = 'Test Key'; }
+        }
+
+        async function finishSetup() {
+            const key = document.getElementById('apiKey').value;
+            // Save Key first
+            await fetch('/api/setup/save-api', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ key })
+            });
+
+            const res = await fetch('/api/setup/complete', { method: 'POST' });
+            const data = await res.json();
+            if (data.success) {
+                window.location.href = '/admin/login.html';
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ad Manager - InstaGrab Production</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: #6B7280;
+            font-weight: 700;
+            font-size: 0.875rem;
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            color: #7C3AED;
+            background: #F3F4F6;
+        }
+
+        .ad-item {
+            transition: all 0.3s ease;
+        }
+
+        .ad-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+    </style>
+</head>
+
+<body class="bg-[#FAFBFC] min-h-screen flex flex-col md:flex-row">
+    <!-- Sidebar -->
+    <aside class="w-full md:w-72 bg-white border-r border-gray-100 p-8 flex flex-col z-50">
+        <div class="flex items-center space-x-3 mb-16">
+            <div class="w-10 h-10 bg-gray-50 rounded-xl p-1 shadow-sm">
+                <img src="../images/logo.png" class="w-full h-full object-contain">
+            </div>
+            <span class="text-xl font-black italic">InstaGrab<span class="text-purple-600">.</span></span>
+        </div>
+
+        <nav class="space-y-4 flex-grow">
+            <a href="/admin" class="sidebar-link">
+                <span class="mr-3">📊</span> Dashboard
+            </a>
+            <a href="/admin/api-settings.html" class="sidebar-link">
+                <span class="mr-3">🔑</span> API Config
+            </a>
+            <a href="/admin/blog-manager.html" class="sidebar-link">
+                <span class="mr-3">📝</span> Content Mgr
+            </a>
+            <a href="/admin/pages-manager.html" class="sidebar-link">
+                <span class="mr-3">📄</span> Pages Mgr
+            </a>
+            <a href="/admin/ads-manager.html" class="sidebar-link active">
+                <span class="mr-3">📢</span> Ad Manager
+            </a>
+            <a href="/admin/settings.html" class="sidebar-link">
+                <span class="mr-3">⚙️</span> Site Settings
+            </a>
+            <a href="/admin/scripts-manager.html" class="sidebar-link">
+                <span class="mr-3">🛠️</span> Advanced Tools
+            </a>
+        </nav>
+
+        <div class="mt-auto pt-8 border-t border-gray-50">
+            <a href="/api/admin/logout" class="sidebar-link text-red-500 hover:bg-red-50">
+                <span class="mr-3">🚪</span> Terminate Session
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-grow p-8 md:p-12 overflow-y-auto">
+        <header class="flex justify-between items-center mb-16">
+            <div>
+                <h1 class="text-4xl font-black text-gray-900">Ad Inserter</h1>
+                <p class="text-gray-400 font-bold uppercase tracking-widest text-[10px] mt-2">Manage Scripts, Meta Tags
+                    & Ad Blocks</p>
+            </div>
+        </header>
+
+        <!-- Header Scripts / Global AdSense Section -->
+        <div class="glass-card p-10 mb-12">
+            <h3 class="text-xl font-black text-gray-900 mb-6 flex items-center">
+                <span class="mr-3">🌐</span> Global Header Scripts & Meta Tags
+            </h3>
+            <p class="text-sm text-gray-500 mb-6">Injected into the <code>&lt;head&gt;</code> of every page. Use for
+                AdSense verification, Analytics, or Site Verification meta tags.</p>
+            <div class="space-y-4">
+                <textarea id="ads_header"
+                    class="w-full h-40 p-6 bg-gray-50 border-none rounded-3xl font-mono text-xs focus:ring-2 focus:ring-purple-500"
+                    placeholder="Paste AdSense code, Verification meta tags, etc."></textarea>
+                <button id="saveGlobalBtn" class="btn-primary shadow-glow">
+                    <span>Save Global Scripts</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Ad Blocks Management -->
+        <div class="flex justify-between items-center mb-8">
+            <h3 class="text-2xl font-black text-gray-900">Custom Ad Blocks</h3>
+            <button onclick="showAdModal()" class="btn-primary px-6 py-3 text-sm shadow-glow">
+                <span>+ Create New Ad Block</span>
+            </button>
+        </div>
+
+        <div id="adsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Ad Blocks will be loaded here -->
+        </div>
+    </main>
+
+    <!-- Ad Modal -->
+    <div id="adModal"
+        class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[1000] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-[2.5rem] w-full max-w-2xl p-10 shadow-2xl stagger-in">
+            <h3 class="text-3xl font-black text-gray-900 mb-8" id="modalTitle">Create Ad Block</h3>
+            <form id="adForm" class="space-y-6">
+                <input type="hidden" id="ad_id">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 px-2">Internal
+                        Name</label>
+                    <input type="text" id="ad_name" placeholder="e.g. Sidebar Banner" required class="input-field">
+                </div>
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 px-2">Placement
+                            Position</label>
+                        <select id="ad_position" class="input-field appearance-none">
+                            <option value="before_content">Before Content</option>
+                            <option value="middle_content">Middle of Content</option>
+                            <option value="after_content">After Content</option>
+                            <option value="footer">Footer Area</option>
+                        </select>
+                    </div>
+                    <div id="paraRow" class="space-y-2 hidden">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 px-2">After
+                            Paragraph #</label>
+                        <input type="number" id="paragraph_number" value="2" min="1" class="input-field">
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 px-2">Ad Code
+                        (HTML/JS)</label>
+                    <textarea id="ad_code"
+                        class="w-full h-40 p-6 bg-gray-50 border-none rounded-3xl font-mono text-xs focus:ring-2 focus:ring-purple-500"
+                        placeholder="Paste your ad code here..." required></textarea>
+                </div>
+                <div class="flex gap-4 pt-6">
+                    <button type="submit" class="flex-1 btn-primary py-5">Save Ad Block</button>
+                    <button type="button" onclick="hideAdModal()"
+                        class="px-8 bg-gray-50 text-gray-500 rounded-2xl font-bold hover:bg-gray-100 transition-all">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const adsList = document.getElementById('adsList');
+        const adModal = document.getElementById('adModal');
+        const adForm = document.getElementById('adForm');
+        const adPosition = document.getElementById('ad_position');
+        const paraRow = document.getElementById('paraRow');
+
+        adPosition.onchange = () => {
+            paraRow.style.display = adPosition.value === 'middle_content' ? 'block' : 'none';
+        };
+
+        async function loadAds() {
+            // Load Global Meta/Header Settings
+            const setRes = await fetch('/api/admin/settings');
+            const setData = await setRes.json();
+            if (setData.success) {
+                document.getElementById('ads_header').value = setData.settings.ads_header || '';
+            }
+
+            // Load Ad Blocks
+            const res = await fetch('/api/admin/ads');
+            const data = await res.json();
+            if (data.success) {
+                if (data.ads.length === 0) {
+                    adsList.innerHTML = '<div class="col-span-full py-20 text-center text-gray-400 italic">No ad blocks created yet.</div>';
+                    return;
+                }
+                adsList.innerHTML = data.ads.map(ad => `
+                    <div class="ad-item bg-white p-8 rounded-[2rem] border border-gray-50 shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4">
+                            <span class="px-3 py-1 bg-purple-50 text-purple-600 rounded-full text-[9px] font-black uppercase tracking-tighter">${ad.position.replace('_', ' ')}</span>
+                        </div>
+                        <h4 class="text-xl font-black text-gray-900 mb-2 truncate pr-16">${ad.name}</h4>
+                        <div class="bg-gray-50 p-4 rounded-xl mb-6 max-h-32 overflow-hidden">
+                            <code class="text-[10px] text-gray-400 font-mono">${ad.code.substring(0, 100)}...</code>
+                        </div>
+                        <div class="flex gap-3">
+                            <button onclick='editAd(${JSON.stringify(ad)})' class="flex-1 py-2 bg-gray-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-purple-600 transition-all">Edit</button>
+                            <button onclick="deleteAd(${ad.id})" class="flex-1 py-2 bg-red-50 text-red-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all">Delete</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        document.getElementById('saveGlobalBtn').onclick = async () => {
+            const btn = document.getElementById('saveGlobalBtn');
+            const original = btn.innerHTML;
+            btn.innerHTML = '<span>Saving...</span>';
+
+            await fetch('/api/admin/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ads_header: document.getElementById('ads_header').value })
+            });
+
+            btn.innerHTML = '<span>√ Saved!</span>';
+            setTimeout(() => btn.innerHTML = original, 2000);
+        };
+
+        function showAdModal() {
+            adForm.reset();
+            document.getElementById('ad_id').value = '';
+            document.getElementById('modalTitle').innerText = 'Create Ad Block';
+            adModal.classList.remove('hidden');
+        }
+
+        function hideAdModal() {
+            adModal.classList.add('hidden');
+        }
+
+        function editAd(ad) {
+            document.getElementById('ad_id').value = ad.id;
+            document.getElementById('ad_name').value = ad.name;
+            document.getElementById('ad_code').value = ad.code;
+            document.getElementById('ad_position').value = ad.position;
+            document.getElementById('paragraph_number').value = ad.paragraph_number || 2;
+            document.getElementById('modalTitle').innerText = 'Edit Ad Block';
+            paraRow.style.display = ad.position === 'middle_content' ? 'block' : 'none';
+            adModal.classList.remove('hidden');
+        }
+
+        adForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const adData = {
+                id: document.getElementById('ad_id').value,
+                name: document.getElementById('ad_name').value,
+                code: document.getElementById('ad_code').value,
+                position: document.getElementById('ad_position').value,
+                paragraph_number: document.getElementById('paragraph_number').value,
+                status: 'active'
+            };
+
+            await fetch('/api/admin/ads', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(adData)
+            });
+
+            hideAdModal();
+            loadAds();
+        };
+
+        async function deleteAd(id) {
+            if (!confirm('Delete this ad block?')) return;
+            await fetch(`/api/admin/ads/${id}`, { method: 'DELETE' });
+            loadAds();
+        }
+
+        loadAds();
+    </script>
+</body>
+
+</html>
