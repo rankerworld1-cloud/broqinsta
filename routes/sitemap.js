@@ -1,69 +1,58 @@
 const express = require('express');
 const router = express.Router();
-const { Posts, Pages } = require('../models/database');
+const { Posts, Pages, Settings } = require('../models/database');
 
-// Generate dynamic sitemap.xml
 router.get('/sitemap.xml', (req, res) => {
     try {
-        const baseUrl = `${req.protocol}://${req.get('host')}`;
-        
-        // Get all posts and pages
-        const posts = Posts.getAll();
-        const pages = Pages.getAll();
-        
-        // Base URLs
+        const siteUrl = Settings.get('site_url') || `${req.protocol}://${req.get('host')}`;
+        const posts = Posts.getPublished();
+        const pages = Pages.getPublished();
+
         const staticUrls = [
-            '/',
-            '/blog',
-            '/how-it-works',
-            '/faq',
-            '/contact',
-            '/privacy',
-            '/terms',
-            '/about'
+            { loc: '/', priority: '1.0', changefreq: 'daily' },
+            { loc: '/blog', priority: '0.9', changefreq: 'daily' },
+            { loc: '/how-it-works', priority: '0.8', changefreq: 'weekly' },
+            { loc: '/faq', priority: '0.8', changefreq: 'weekly' },
+            { loc: '/contact', priority: '0.7', changefreq: 'monthly' },
+            { loc: '/privacy', priority: '0.5', changefreq: 'monthly' },
+            { loc: '/terms', priority: '0.5', changefreq: 'monthly' },
+            { loc: '/about', priority: '0.8', changefreq: 'monthly' }
         ];
 
-        // Generate sitemap XML
         let sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n';
         sitemap += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
 
-        // Add static URLs
-        staticUrls.forEach(url => {
+        staticUrls.forEach(u => {
             sitemap += `  <url>\n`;
-            sitemap += `    <loc>${baseUrl}${url}</loc>\n`;
-            sitemap += `    <changefreq>daily</changefreq>\n`;
-            sitemap += `    <priority>${url === '/' ? '1.0' : '0.8'}</priority>\n`;
+            sitemap += `    <loc>${siteUrl}${u.loc}</loc>\n`;
+            sitemap += `    <changefreq>${u.changefreq}</changefreq>\n`;
+            sitemap += `    <priority>${u.priority}</priority>\n`;
             sitemap += `    <lastmod>${new Date().toISOString()}</lastmod>\n`;
             sitemap += `  </url>\n`;
         });
 
-        // Add blog posts
         posts.forEach(post => {
-            if (post.status === 'published') {
-                sitemap += `  <url>\n`;
-                sitemap += `    <loc>${baseUrl}/blog/${post.slug}</loc>\n`;
-                sitemap += `    <changefreq>monthly</changefreq>\n`;
-                sitemap += `    <priority>0.9</priority>\n`;
-                sitemap += `    <lastmod>${new Date(post.updated_at).toISOString()}</lastmod>\n`;
-                sitemap += `  </url>\n`;
-            }
+            sitemap += `  <url>\n`;
+            sitemap += `    <loc>${siteUrl}/blog/${post.slug}</loc>\n`;
+            sitemap += `    <changefreq>weekly</changefreq>\n`;
+            sitemap += `    <priority>0.9</priority>\n`;
+            sitemap += `    <lastmod>${new Date(post.updated_at).toISOString()}</lastmod>\n`;
+            sitemap += `  </url>\n`;
         });
 
-        // Add pages
         pages.forEach(page => {
-            if (page.status === 'published') {
-                sitemap += `  <url>\n`;
-                sitemap += `    <loc>${baseUrl}/${page.slug}</loc>\n`;
-                sitemap += `    <changefreq>monthly</changefreq>\n`;
-                sitemap += `    <priority>0.8</priority>\n`;
-                sitemap += `    <lastmod>${new Date(page.updated_at).toISOString()}</lastmod>\n`;
-                sitemap += `  </url>\n`;
-            }
+            sitemap += `  <url>\n`;
+            sitemap += `    <loc>${siteUrl}/${page.slug}</loc>\n`;
+            sitemap += `    <changefreq>monthly</changefreq>\n`;
+            sitemap += `    <priority>0.8</priority>\n`;
+            sitemap += `    <lastmod>${new Date(page.updated_at).toISOString()}</lastmod>\n`;
+            sitemap += `  </url>\n`;
         });
 
         sitemap += '</urlset>';
 
         res.header('Content-Type', 'application/xml');
+        res.header('Cache-Control', 'public, max-age=3600');
         res.status(200).send(sitemap);
 
     } catch (err) {
@@ -72,55 +61,81 @@ router.get('/sitemap.xml', (req, res) => {
     }
 });
 
-// Generate sitemap.txt for easier submission to search engines
 router.get('/sitemap.txt', (req, res) => {
     try {
-        const baseUrl = `${req.protocol}://${req.get('host')}`;
-        
-        // Get all posts and pages
-        const posts = Posts.getAll();
-        const pages = Pages.getAll();
-        
-        // Base URLs
-        const staticUrls = [
-            '/',
-            '/blog',
-            '/how-it-works',
-            '/faq',
-            '/contact',
-            '/privacy',
-            '/terms',
-            '/about'
-        ];
+        const siteUrl = Settings.get('site_url') || `${req.protocol}://${req.get('host')}`;
+        const posts = Posts.getPublished();
+        const pages = Pages.getPublished();
+
+        const staticUrls = ['/', '/blog', '/how-it-works', '/faq', '/contact', '/privacy', '/terms', '/about'];
 
         let sitemap = '';
-
-        // Add static URLs
-        staticUrls.forEach(url => {
-            sitemap += `${baseUrl}${url}\n`;
-        });
-
-        // Add blog posts
-        posts.forEach(post => {
-            if (post.status === 'published') {
-                sitemap += `${baseUrl}/blog/${post.slug}\n`;
-            }
-        });
-
-        // Add pages
-        pages.forEach(page => {
-            if (page.status === 'published') {
-                sitemap += `${baseUrl}/${page.slug}\n`;
-            }
-        });
+        staticUrls.forEach(url => { sitemap += `${siteUrl}${url}\n`; });
+        posts.forEach(post => { sitemap += `${siteUrl}/blog/${post.slug}\n`; });
+        pages.forEach(page => { sitemap += `${siteUrl}/${page.slug}\n`; });
 
         res.header('Content-Type', 'text/plain');
         res.status(200).send(sitemap);
-
     } catch (err) {
         console.error('Sitemap.txt generation error:', err);
         res.status(500).send(`${req.protocol}://${req.get('host')}/\n`);
     }
+});
+
+router.get('/robots.txt', (req, res) => {
+    const siteUrl = Settings.get('site_url') || `${req.protocol}://${req.get('host')}`;
+    const robots = `User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/admin/
+
+Sitemap: ${siteUrl}/sitemap.xml
+`;
+    res.header('Content-Type', 'text/plain');
+    res.status(200).send(robots);
+});
+
+router.get('/rss.xml', (req, res) => {
+    try {
+        const siteUrl = Settings.get('site_url') || `${req.protocol}://${req.get('host')}`;
+        const siteName = Settings.get('site_name') || 'BroqInsta';
+        const posts = Posts.getPublished().slice(0, 20);
+
+        let rss = '<?xml version="1.0" encoding="UTF-8"?>\n';
+        rss += '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n';
+        rss += '<channel>\n';
+        rss += `  <title>${siteName} Blog</title>\n`;
+        rss += `  <link>${siteUrl}</link>\n`;
+        rss += `  <description>Latest posts from ${siteName}</description>\n`;
+        rss += `  <language>en-us</language>\n`;
+        rss += `  <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>\n`;
+        rss += `  <atom:link href="${siteUrl}/rss.xml" rel="self" type="application/rss+xml"/>\n`;
+
+        posts.forEach(post => {
+            rss += `  <item>\n`;
+            rss += `    <title><![CDATA[${post.title}]]></title>\n`;
+            rss += `    <link>${siteUrl}/blog/${post.slug}</link>\n`;
+            rss += `    <guid>${siteUrl}/blog/${post.slug}</guid>\n`;
+            rss += `    <description><![CDATA[${post.excerpt || post.meta_description || ''}]]></description>\n`;
+            rss += `    <pubDate>${new Date(post.created_at).toUTCString()}</pubDate>\n`;
+            if (post.category) rss += `    <category>${post.category}</category>\n`;
+            rss += `  </item>\n`;
+        });
+
+        rss += '</channel>\n';
+        rss += '</rss>';
+
+        res.header('Content-Type', 'application/rss+xml');
+        res.header('Cache-Control', 'public, max-age=3600');
+        res.status(200).send(rss);
+    } catch (err) {
+        console.error('RSS generation error:', err);
+        res.status(500).send('<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel></channel></rss>');
+    }
+});
+
+router.get('/feed', (req, res) => {
+    res.redirect(301, '/rss.xml');
 });
 
 module.exports = router;

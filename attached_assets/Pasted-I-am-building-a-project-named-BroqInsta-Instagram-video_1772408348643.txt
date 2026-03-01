@@ -1,0 +1,261 @@
+I am building a project named "BroqInsta" (Instagram video saver tool).
+
+I need a WordPress-style CMS structure built using Node.js + Express + EJS (or any clean templating system).
+
+The system must allow me to create Pages and Blog Posts from an Admin Dashboard.
+
+Implement the following architecture:
+
+1️⃣ PROJECT STRUCTURE
+
+Create:
+
+/admin
+/routes
+/views
+/public
+/data
+/server.js
+
+Use JSON file or lightweight database (like lowdb) for content storage.
+
+2️⃣ ADMIN DASHBOARD
+
+Create:
+
+/admin/login
+/admin/dashboard
+/admin/new-post
+/admin/new-page
+/admin/edit-post/:id
+/admin/edit-page/:id
+
+Features:
+
+Title field
+
+Slug (auto-generated from title)
+
+Meta title
+
+Meta description
+
+Content (rich text or basic HTML editor)
+
+Category (for posts)
+
+Tags (optional)
+
+Publish button
+
+When published:
+
+Save content to database
+
+Regenerate sitemap
+
+Ping Google
+
+3️⃣ URL STRUCTURE (CRITICAL)
+
+Use clean SEO permalinks:
+
+Pages:
+https://broqinsta.com/about
+
+https://broqinsta.com/privacy-policy
+
+Posts:
+https://broqinsta.com/blog/how-to-download-instagram-reels
+
+No query strings.
+No ?p=123 format.
+
+Implement automatic slug generation:
+
+Example:
+Title: How To Download Instagram Reels
+Slug: how-to-download-instagram-reels
+
+4️⃣ BLOG SYSTEM
+
+Create:
+
+/blog (auto list page showing latest posts in reverse chronological order)
+
+Each post page:
+
+H1 = title
+
+Meta title
+
+Meta description
+
+Canonical tag
+
+Published date
+
+Category link
+
+Related posts section
+
+5️⃣ AUTO SITEMAP SYSTEM
+
+Automatically generate:
+
+/public/sitemap.xml
+
+Include:
+
+All pages
+
+All blog posts
+
+<lastmod> dynamic
+
+<changefreq> weekly
+
+<priority>
+
+When:
+
+New page created
+
+New post created
+
+Post updated
+
+Automatically regenerate sitemap.
+
+6️⃣ AUTO GOOGLE PING
+
+After sitemap regeneration, send request to:
+
+https://www.google.com/ping?sitemap=https://broqinsta.com/sitemap.xml
+
+And:
+
+https://www.bing.com/ping?sitemap=https://broqinsta.com/sitemap.xml
+
+7️⃣ ROBOTS.TXT
+
+Auto-create:
+
+/public/robots.txt
+
+Content:
+
+User-agent: *
+Allow: /
+Sitemap: https://broqinsta.com/sitemap.xml
+
+Ensure it returns HTTP 200.
+
+8️⃣ RSS FEED
+
+Generate:
+
+/public/rss.xml
+
+Include latest 20 blog posts.
+
+9️⃣ SEO STRUCTURE
+
+Each page/post must include:
+
+<meta name="description"> <meta name="robots" content="index, follow"> <link rel="canonical"> Open Graph tags Twitter Card tags
+
+Only one H1 per page.
+
+🔟 PERFORMANCE
+
+Enable gzip compression
+
+Minify HTML output
+
+Lazy load images
+
+Fast server response
+
+11️⃣ INTERNAL LINKING
+
+Auto add:
+
+Blog sidebar
+
+Latest posts section
+
+Footer links to main pages
+
+Breadcrumb navigation
+
+No orphan pages allowed.
+
+12️⃣ MVP PAGE STRUCTURE
+
+Create default pages:
+
+Home
+About
+Contact
+Privacy Policy
+
+Home must include strong CTA for Instagram downloader tool.
+
+13️⃣ IMPORTANT
+
+When new blog post is published:
+
+It must instantly:
+
+Get its own clean URL
+
+Appear on /blog page
+
+Appear in sitemap
+
+Trigger Google ping
+
+Do not rely on manual sitemap update.
+
+Automate everything.
+
+🚨 FINAL REQUIREMENT
+
+The system must behave like a lightweight WordPress CMS but custom built.
+
+Admin writes content → System:
+
+Creates clean URL
+
+Updates sitemap
+
+Updates RSS
+
+Notifies search engines
+
+Makes page crawlable
+
+Everything must be automatic.
+
+🔥 END PROMPT
+
+⚠️ IMPORTANT REALITY
+
+Even if Google is pinged instantly:
+
+It may still take:
+
+Hours
+
+Or days
+
+Google decides crawl priority.
+
+But this system ensures:
+
+Google knows immediately
+
+No technical barrier exists
+
+Structure is SEO ready

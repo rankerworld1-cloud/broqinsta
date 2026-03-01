@@ -1,0 +1,42 @@
+1. The Strategy: When to Use What
+Think of your website like a restaurant. Your Pages are the building (address, menu, about us), while your Posts are the "Specials" board that changes every day.
+
+Feature	Pages (The Static Bones)	Posts (The Dynamic Muscle)
+Purpose	Evergreen, foundational info.	Timely, social, and searchable content.
+Organization	Hierarchical (Parent/Child).	Categories and Tags.
+Lifespan	Long-term (rarely changes).	Short-to-medium term (regularly updated).
+MVP Goal	Establish credibility & "the offer."	Drive traffic & test market interest.
+2. Creating Your MVP "Core" (Pages)
+For an MVP, you only need 3 to 4 pages. Don't overbuild.
+
+Home: Your "Hook." Use a simple Call to Action (CTA) block immediately at the top.
+
+About: Who are you and why should they trust you? Keep it under 300 words.
+
+Contact/Sign-up: A simple form or email address. This is your "Conversion" metric for the MVP.
+
+Privacy Policy: Use the WordPress "Auto-generate" tool to stay legal with zero effort.
+
+MVP Tip: Use the Block Patterns (pre-designed layouts) inside the editor. Don't waste hours designing from scratch; pick a "Services" or "About" pattern and just swap the text.
+
+3. Creating Your MVP "Growth" (Blog/Posts)
+Posts are your MVP’s secret weapon for SEO and Validation.
+
+Categories vs. Tags:
+
+Categories: Broad buckets (e.g., "Product Updates," "Industry News"). Stick to 3 max for an MVP.
+
+Tags: Specific keywords (e.g., "Tutorial," "2026 Trends"). Use these sparingly.
+
+The "Latest Posts" Page: You don't need to design this. In Settings > Reading, set your "Posts page" to a blank page named "Blog." WordPress will automatically feed your new posts there in reverse-chronological order.
+
+4. The MVP Workflow (The "Quick-Start" List)
+Appearance > Themes: Choose a lightweight "Block Theme" like Twenty Twenty-Five.
+
+Pages > Add New: Create your Home, About, and Contact pages.
+
+Posts > Add New: Write one "Hello World" style post explaining your MVP’s mission.
+
+Appearance > Menus: (Or "Navigation" in the Site Editor) Drag your Pages into the top bar.
+
+Settings > Permalinks: Set to "Post name." This is crucial for MVP SEO—it makes your URLs look like site.com/my-awesome-post instead of site.com/?p=123.

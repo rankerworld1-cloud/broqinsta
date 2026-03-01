@@ -4,59 +4,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Post - BroqInsta Official Publication</title>
+    <title>Post - BroqInsta Blog</title>
+    <meta name="robots" content="index, follow">
+    <meta name="description" content="">
+    <link rel="canonical" href="">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="">
+    <meta property="og:description" content="">
+    <meta property="og:image" content="">
+    <meta property="og:url" content="">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="">
+    <meta name="twitter:description" content="">
+    <meta name="twitter:image" content="">
+    <link rel="alternate" type="application/rss+xml" title="BroqInsta Blog RSS" href="/rss.xml">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5905358857319449"
         crossorigin="anonymous"></script>
     <link rel="stylesheet" href="/css/style.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        #post-content p {
-            margin-bottom: 2rem;
-        }
-
-        #post-content h2 {
-            font-size: 2rem;
-            font-weight: 900;
-            margin-top: 4rem;
-            margin-bottom: 1.5rem;
-            color: #111827;
-        }
-
-        #post-content h3 {
-            font-size: 1.5rem;
-            font-weight: 800;
-            margin-top: 3rem;
-            margin-bottom: 1rem;
-            color: #111827;
-        }
-
-        #post-content ul,
-        #post-content ol {
-            margin-bottom: 2rem;
-            padding-left: 1.5rem;
-        }
-
-        #post-content li {
-            margin-bottom: 0.5rem;
-        }
-
-        #post-content img {
-            border-radius: 2rem;
-            margin: 3rem 0;
-            box-shadow: var(--shadow-lg);
-            width: 100%;
-        }
-
-        #post-content a {
-            color: #7C3AED;
-            font-weight: 700;
-            text-decoration: underline;
-        }
+        #post-content p { margin-bottom: 2rem; }
+        #post-content h2 { font-size: 2rem; font-weight: 900; margin-top: 4rem; margin-bottom: 1.5rem; color: #111827; }
+        #post-content h3 { font-size: 1.5rem; font-weight: 800; margin-top: 3rem; margin-bottom: 1rem; color: #111827; }
+        #post-content ul, #post-content ol { margin-bottom: 2rem; padding-left: 1.5rem; }
+        #post-content li { margin-bottom: 0.5rem; }
+        #post-content img { border-radius: 2rem; margin: 3rem 0; box-shadow: var(--shadow-lg); width: 100%; loading: lazy; }
+        #post-content a { color: #7C3AED; font-weight: 700; text-decoration: underline; }
     </style>
 </head>
 
 <body class="bg-[#FAFBFC] min-h-screen flex flex-col">
-    <!-- Navigation -->
     <header class="py-6 px-4">
         <nav class="container mx-auto flex justify-between items-center">
             <a href="/" class="flex items-center space-x-3">
@@ -65,62 +42,114 @@
                 </div>
                 <span class="text-xl font-black italic">BroqInsta<span class="text-purple-600">.</span></span>
             </a>
-            <a href="/blog"
-                class="text-xs font-black uppercase tracking-widest text-gray-400 hover:text-gray-900 transition-colors">←
-                Back to Insights</a>
+            <div class="hidden md:flex items-center space-x-8 text-xs font-bold uppercase tracking-widest text-gray-400">
+                <a href="/" class="hover:text-purple-600 transition-colors">Home</a>
+                <a href="/blog" class="hover:text-purple-600 transition-colors">Blog</a>
+                <a href="/how-it-works" class="hover:text-purple-600 transition-colors">Guide</a>
+                <a href="/faq" class="hover:text-purple-600 transition-colors">FAQ</a>
+                <a href="/contact" class="hover:text-purple-600 transition-colors">Support</a>
+            </div>
         </nav>
     </header>
 
-    <main class="flex-grow container mx-auto px-4 py-24 max-w-4xl">
-        <article class="stagger-in">
+    <main class="flex-grow container mx-auto px-4 py-12 max-w-4xl">
+        <nav class="mb-8 text-sm font-medium text-gray-400" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2">
+                <li><a href="/" class="hover:text-purple-600 transition-colors">Home</a></li>
+                <li><span class="mx-2">/</span></li>
+                <li><a href="/blog" class="hover:text-purple-600 transition-colors">Blog</a></li>
+                <li><span class="mx-2">/</span></li>
+                <li id="breadcrumb-title" class="text-gray-600 truncate max-w-xs">Loading...</li>
+            </ol>
+        </nav>
+
+        <article class="stagger-in" itemscope itemtype="https://schema.org/BlogPosting">
             <div class="mb-16 text-center">
-                <div id="post-meta"
-                    class="flex items-center justify-center space-x-6 text-[10px] font-black uppercase tracking-widest text-gray-400 mb-8">
-                    <span>Article</span>
-                    <span>●</span>
-                    <span id="post-date">Publishing...</span>
+                <div id="post-meta" class="flex items-center justify-center space-x-6 text-[10px] font-black uppercase tracking-widest text-gray-400 mb-8">
+                    <span id="post-category" class="px-3 py-1 bg-purple-50 text-purple-600 rounded-full">Article</span>
+                    <span>|</span>
+                    <time id="post-date" itemprop="datePublished">Publishing...</time>
                 </div>
-                <h1 id="post-title" class="text-5xl md:text-6xl font-black text-gray-900 leading-tight mb-12">Article
-                    Title Protocol</h1>
-                <div id="post-excerpt"
-                    class="text-xl text-gray-500 font-medium leading-relaxed max-w-2xl mx-auto italic">
-                    Fetching content excerpt...
+                <h1 id="post-title" itemprop="headline" class="text-5xl md:text-6xl font-black text-gray-900 leading-tight mb-12">Loading...</h1>
+                <div id="post-excerpt" itemprop="description" class="text-xl text-gray-500 font-medium leading-relaxed max-w-2xl mx-auto italic">
+                    Fetching content...
                 </div>
             </div>
 
+            <div id="post-featured-image" class="hidden mb-12">
+                <img id="featured-img" class="w-full rounded-[2rem] shadow-lg" alt="" itemprop="image" loading="lazy">
+            </div>
+
             <div class="glass-card p-12 md:p-20 rounded-[4rem] bg-white shadow-2xl">
-                <div id="post-content" class="text-lg text-gray-600 font-medium leading-[1.8] tracking-tight">
-                    <!-- Dynamic Stream -->
+                <div id="post-content" itemprop="articleBody" class="text-lg text-gray-600 font-medium leading-[1.8] tracking-tight"></div>
+
+                <div id="post-tags" class="mt-12 pt-8 border-t border-gray-100 hidden">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4">Tags</p>
+                    <div id="tags-list" class="flex flex-wrap gap-2"></div>
                 </div>
             </div>
         </article>
 
-        <div class="mt-32 text-center animate-on-scroll">
-            <div class="inline-block p-12 glass-card bg-gray-900 text-white border-none">
-                <h3 class="text-2xl font-black mb-6">Need more media tools?</h3>
-                <p class="text-gray-400 mb-8 font-medium">Power your workflow with the world's most elegant downloader.
-                </p>
+        <section id="related-posts" class="mt-24 hidden">
+            <h2 class="text-3xl font-black text-gray-900 mb-10">Related Posts</h2>
+            <div id="related-grid" class="grid md:grid-cols-3 gap-8"></div>
+        </section>
+
+        <div class="mt-24 text-center animate-on-scroll">
+            <div class="inline-block p-12 glass-card bg-gray-900 text-white border-none rounded-[3rem]">
+                <h3 class="text-2xl font-black mb-6">Download Instagram Content</h3>
+                <p class="text-gray-400 mb-8 font-medium">Save reels, videos, and photos in HD quality instantly.</p>
                 <a href="/" class="btn-primary px-12 py-5 font-black">Try BroqInsta Now</a>
             </div>
         </div>
     </main>
 
     <footer class="py-12 border-t border-gray-100 bg-white/50 backdrop-blur-md">
-        <div class="container mx-auto px-4 text-center">
-            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">© 2026 BroqInsta | Powered by <a
-                    href="https://infiniterankers.com" target="_blank" class="text-gray-900">Infinite Rankers</a></p>
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <h4 class="text-sm font-black text-gray-900 mb-4">BroqInsta</h4>
+                    <p class="text-xs text-gray-400">Professional Instagram content downloader.</p>
+                </div>
+                <div>
+                    <h4 class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4">Pages</h4>
+                    <ul class="space-y-2 text-xs text-gray-500">
+                        <li><a href="/" class="hover:text-purple-600 transition-colors">Home</a></li>
+                        <li><a href="/about" class="hover:text-purple-600 transition-colors">About</a></li>
+                        <li><a href="/how-it-works" class="hover:text-purple-600 transition-colors">How It Works</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4">Resources</h4>
+                    <ul class="space-y-2 text-xs text-gray-500">
+                        <li><a href="/blog" class="hover:text-purple-600 transition-colors">Blog</a></li>
+                        <li><a href="/faq" class="hover:text-purple-600 transition-colors">FAQ</a></li>
+                        <li><a href="/contact" class="hover:text-purple-600 transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4">Legal</h4>
+                    <ul class="space-y-2 text-xs text-gray-500">
+                        <li><a href="/privacy" class="hover:text-purple-600 transition-colors">Privacy Policy</a></li>
+                        <li><a href="/terms" class="hover:text-purple-600 transition-colors">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="text-center pt-8 border-t border-gray-100">
+                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                    &copy; 2026 BroqInsta | Powered by <a href="https://infiniterankers.com" target="_blank" class="text-gray-900">Infinite Rankers</a>
+                </p>
+            </div>
         </div>
     </footer>
 
     <script>
-        // Ad Inserter Logic
         async function injectAds() {
             try {
                 const res = await fetch('/api/ads');
                 const data = await res.json();
                 if (!data.success) return;
 
-                // 1. Inject Header Scripts (Ads/Meta Tags)
                 if (data.header) {
                     const temp = document.createElement('div');
                     temp.innerHTML = data.header;
@@ -136,7 +165,6 @@
                     });
                 }
 
-                // 2. Inject Ad Blocks
                 const contentArea = document.getElementById('post-content');
                 data.ads.forEach(ad => {
                     const adDiv = document.createElement('div');
@@ -155,7 +183,6 @@
                         document.querySelector('footer').prepend(adDiv);
                     }
 
-                    // Execute scripts inside injected ad blocks
                     const scripts = adDiv.querySelectorAll('script');
                     scripts.forEach(oldScript => {
                         const newScript = document.createElement('script');
@@ -167,31 +194,87 @@
             } catch (e) { console.error('Ad injection failed'); }
         }
 
+        function updateMeta(post) {
+            const baseUrl = window.location.origin;
+            const pageUrl = `${baseUrl}/blog/${post.slug}`;
+            const metaTitle = post.meta_title || `${post.title} - BroqInsta`;
+            const metaDesc = post.meta_description || post.excerpt || '';
+            const ogImage = post.featured_image || `${baseUrl}/images/preview.png`;
+
+            document.title = metaTitle;
+            document.querySelector('meta[name="description"]').content = metaDesc;
+            document.querySelector('link[rel="canonical"]').href = pageUrl;
+            document.querySelector('meta[property="og:title"]').content = metaTitle;
+            document.querySelector('meta[property="og:description"]').content = metaDesc;
+            document.querySelector('meta[property="og:image"]').content = ogImage;
+            document.querySelector('meta[property="og:url"]').content = pageUrl;
+            document.querySelector('meta[name="twitter:title"]').content = metaTitle;
+            document.querySelector('meta[name="twitter:description"]').content = metaDesc;
+            document.querySelector('meta[name="twitter:image"]').content = ogImage;
+        }
+
+        function renderRelated(related) {
+            if (!related || related.length === 0) return;
+            const section = document.getElementById('related-posts');
+            const grid = document.getElementById('related-grid');
+            section.classList.remove('hidden');
+            grid.innerHTML = related.map(post => `
+                <a href="/blog/${post.slug}" class="glass-card p-8 flex flex-col group hover:shadow-lg transition-all">
+                    <span class="text-[9px] font-black uppercase tracking-[0.2em] text-purple-600 px-3 py-1 bg-purple-50 rounded-full inline-block mb-4 w-fit">${post.category || 'Article'}</span>
+                    <h3 class="text-xl font-black text-gray-900 group-hover:text-purple-600 transition-colors line-clamp-2 mb-4">${post.title}</h3>
+                    <p class="text-sm text-gray-500 line-clamp-2 flex-grow">${post.excerpt || ''}</p>
+                    <div class="pt-6 mt-auto text-xs font-black uppercase tracking-widest text-gray-900 group-hover:translate-x-2 transition-transform">
+                        Read More <span class="ml-1">&rarr;</span>
+                    </div>
+                </a>
+            `).join('');
+        }
+
         async function fetchPost() {
-            const slug = window.location.pathname.split('/').pop();
+            const pathParts = window.location.pathname.split('/');
+            const slug = pathParts[pathParts.length - 1] || pathParts[pathParts.length - 2];
             try {
                 const res = await fetch(`/api/blog/posts/${slug}`);
                 const data = await res.json();
                 if (data.success && data.post) {
                     const post = data.post;
-                    document.title = `${post.title} - BroqInsta Insights`;
+                    updateMeta(post);
+                    document.getElementById('breadcrumb-title').innerText = post.title;
                     document.getElementById('post-title').innerText = post.title;
                     document.getElementById('post-date').innerText = new Date(post.created_at).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' });
-                    document.getElementById('post-excerpt').innerText = post.excerpt;
+                    document.getElementById('post-excerpt').innerText = post.excerpt || '';
                     document.getElementById('post-content').innerHTML = post.content;
 
-                    // Trigger Ads after content is loaded
+                    if (post.category) {
+                        document.getElementById('post-category').innerText = post.category;
+                    }
+
+                    if (post.featured_image) {
+                        document.getElementById('featured-img').src = post.featured_image;
+                        document.getElementById('featured-img').alt = post.title;
+                        document.getElementById('post-featured-image').classList.remove('hidden');
+                    }
+
+                    if (post.tags) {
+                        const tagsDiv = document.getElementById('post-tags');
+                        const tagsList = document.getElementById('tags-list');
+                        tagsDiv.classList.remove('hidden');
+                        tagsList.innerHTML = post.tags.split(',').map(tag =>
+                            `<span class="px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-xs font-bold">${tag.trim()}</span>`
+                        ).join('');
+                    }
+
+                    renderRelated(data.related);
                     await injectAds();
                 } else {
                     window.location.href = '/blog';
                 }
             } catch (err) {
-                console.error('Publication stream failure');
+                console.error('Failed to load post');
             }
         }
         fetchPost();
 
-        // Scroll Observe for Footer
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => entry.isIntersecting && entry.target.classList.add('visible'));
         }, { threshold: 0.1 });

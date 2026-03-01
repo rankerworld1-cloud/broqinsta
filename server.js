@@ -111,7 +111,10 @@ app.get('/api/blog/posts', (req, res) => {
 app.get('/api/blog/posts/:slug', (req, res) => {
     try {
         const post = Posts.getBySlug(req.params.slug);
-        if (post) res.json({ success: true, post });
+        if (post) {
+            const related = Posts.getRelated(post.id, post.category || 'General', 3);
+            res.json({ success: true, post, related });
+        }
         else res.status(404).json({ success: false, error: 'Post not found' });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
@@ -157,17 +160,16 @@ app.get('/setup', (req, res) => {
 // 2. Setup Check Middleware
 app.use(setupCheck);
 
-// 3. Admin Files Protection
+// 3. Admin Login (Public - No Auth Required)
+app.get('/admin/login.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin', 'login.html'));
+});
+
+// 3b. Admin Files Protection
 app.use('/admin', adminAuth, express.static(path.join(__dirname, 'public', 'admin')));
 
 // 4. SECURITY FILTER - Block access to sensitive files
 app.use(securityFilter);
-
-// 5. General Static Files with Caching (ONLY public folder)
-app.use(express.static(path.join(__dirname, 'public'), {
-    maxAge: '1d',
-    etag: true
-}));
 
 // 5. General Static Files with Caching (ONLY public folder)
 app.use(express.static(path.join(__dirname, 'public'), {

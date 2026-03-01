@@ -6,16 +6,13 @@ const crypto = require('crypto');
 
 const dbPath = path.join(__dirname, '../database/broqinsta.db');
 
-// Ensure directory exists
 if (!fs.existsSync(path.dirname(dbPath))) {
     fs.mkdirSync(path.dirname(dbPath), { recursive: true });
 }
 
 const db = new Database(dbPath);
 
-// --- SCHEMA INITIALIZATION ---
 function initSchema() {
-    // Ensure all required tables exist
     db.prepare(`
         CREATE TABLE IF NOT EXISTS site_settings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -56,8 +53,10 @@ function initSchema() {
             slug TEXT UNIQUE NOT NULL,
             excerpt TEXT,
             content TEXT,
+            meta_title TEXT,
             meta_description TEXT,
             featured_image TEXT,
+            category TEXT DEFAULT 'General',
             tags TEXT,
             status TEXT DEFAULT 'published',
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -71,6 +70,7 @@ function initSchema() {
             title TEXT NOT NULL,
             slug TEXT UNIQUE NOT NULL,
             content TEXT,
+            meta_title TEXT,
             meta_description TEXT,
             featured_image TEXT,
             status TEXT DEFAULT 'published',
@@ -84,7 +84,7 @@ function initSchema() {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             code TEXT NOT NULL,
-            position TEXT NOT NULL, -- header, before_content, middle_content, after_content, footer
+            position TEXT NOT NULL,
             status TEXT DEFAULT 'active',
             paragraph_number INTEGER DEFAULT 0,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -92,15 +92,19 @@ function initSchema() {
         )
     `).run();
 
-    // Default Settings
+    try { db.prepare('ALTER TABLE posts ADD COLUMN meta_title TEXT').run(); } catch(e) {}
+    try { db.prepare('ALTER TABLE posts ADD COLUMN category TEXT DEFAULT "General"').run(); } catch(e) {}
+    try { db.prepare('ALTER TABLE pages ADD COLUMN meta_title TEXT').run(); } catch(e) {}
+
     const defaultSettings = [
         ['site_name', 'BroqInsta'],
+        ['site_url', ''],
         ['api_key', '607fd753e3mshf81b2c647e363f0p198126jsnddbd3f37d0d0'],
         ['api_host', 'instagram-downloader-download-instagram-stories-videos4.p.rapidapi.com'],
         ['api_endpoint', 'https://instagram-downloader-download-instagram-stories-videos4.p.rapidapi.com/convert'],
         ['session_secret', crypto.randomBytes(32).toString('hex')],
         ['contact_email', 'contact@infiniterankers.com'],
-        ['ads_header', '<meta name="google-adsense-account" content="ca-pub-5905358857319449">'], // For AdSense scripts & meta tags
+        ['ads_header', '<meta name="google-adsense-account" content="ca-pub-5905358857319449">'],
         ['ads_footer', ''],
         ['setup_complete', '0']
     ];
@@ -111,7 +115,6 @@ function initSchema() {
     }
 }
 
-// --- SETTINGS FUNCTIONS ---
 const Settings = {
     get: (key) => {
         const row = db.prepare('SELECT setting_value FROM site_settings WHERE setting_key = ?').get(key);
@@ -134,7 +137,6 @@ const Settings = {
     }
 };
 
-// --- ADMIN FUNCTIONS ---
 const Admin = {
     create: async (email, password, name = 'Admin') => {
         const hash = await bcrypt.hash(password, 10);
@@ -151,7 +153,6 @@ const Admin = {
     }
 };
 
-// --- LOGGING ---
 const Logs = {
     addDownload: (data) => {
         db.prepare(`
@@ -161,20 +162,21 @@ const Logs = {
     }
 };
 
-// --- BLOG POSTS ---
 const Posts = {
     create: (data) => {
         try {
             return db.prepare(`
-                INSERT INTO posts (title, slug, excerpt, content, meta_description, featured_image, tags, status) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO posts (title, slug, excerpt, content, meta_title, meta_description, featured_image, category, tags, status) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `).run(
                 data.title,
                 data.slug,
                 data.excerpt,
                 data.content,
+                data.meta_title || '',
                 data.meta_description || '',
                 data.featured_image || '',
+                data.category || 'General',
                 data.tags || '',
                 data.status || 'published'
             );
@@ -188,16 +190,18 @@ const Posts = {
     update: (id, data) => {
         return db.prepare(`
             UPDATE posts SET 
-            title = ?, slug = ?, excerpt = ?, content = ?, meta_description = ?, 
-            featured_image = ?, tags = ?, status = ?, updated_at = CURRENT_TIMESTAMP 
+            title = ?, slug = ?, excerpt = ?, content = ?, meta_title = ?, meta_description = ?, 
+            featured_image = ?, category = ?, tags = ?, status = ?, updated_at = CURRENT_TIMESTAMP 
             WHERE id = ?
         `).run(
             data.title,
             data.slug,
             data.excerpt,
             data.content,
+            data.meta_title || '',
             data.meta_description,
             data.featured_image,
+            data.category || 'General',
             data.tags,
             data.status,
             id
@@ -209,25 +213,40 @@ const Posts = {
     getAll: () => {
         return db.prepare('SELECT * FROM posts ORDER BY created_at DESC').all();
     },
+    getPublished: () => {
+        return db.prepare("SELECT * FROM posts WHERE status = 'published' ORDER BY created_at DESC").all();
+    },
     getBySlug: (slug) => {
         return db.prepare('SELECT * FROM posts WHERE slug = ?').get(slug);
     },
     getById: (id) => {
         return db.prepare('SELECT * FROM posts WHERE id = ?').get(id);
+    },
+    getByCategory: (category) => {
+        return db.prepare("SELECT * FROM posts WHERE category = ? AND status = 'published' ORDER BY created_at DESC").all(category);
+    },
+    getRelated: (postId, category, limit = 3) => {
+        return db.prepare("SELECT * FROM posts WHERE id != ? AND category = ? AND status = 'published' ORDER BY created_at DESC LIMIT ?").all(postId, category, limit);
+    },
+    count: () => {
+        return db.prepare('SELECT COUNT(*) as count FROM posts').get().count;
+    },
+    countPublished: () => {
+        return db.prepare("SELECT COUNT(*) as count FROM posts WHERE status = 'published'").get().count;
     }
 };
 
-// --- PAGES ---
 const Pages = {
     create: (data) => {
         try {
             return db.prepare(`
-                INSERT INTO pages (title, slug, content, meta_description, featured_image, status) 
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO pages (title, slug, content, meta_title, meta_description, featured_image, status) 
+                VALUES (?, ?, ?, ?, ?, ?, ?)
             `).run(
                 data.title,
                 data.slug,
                 data.content,
+                data.meta_title || '',
                 data.meta_description || '',
                 data.featured_image || '',
                 data.status || 'published'
@@ -242,13 +261,14 @@ const Pages = {
     update: (id, data) => {
         return db.prepare(`
             UPDATE pages SET 
-            title = ?, slug = ?, content = ?, meta_description = ?, 
+            title = ?, slug = ?, content = ?, meta_title = ?, meta_description = ?, 
             featured_image = ?, status = ?, updated_at = CURRENT_TIMESTAMP 
             WHERE id = ?
         `).run(
             data.title,
             data.slug,
             data.content,
+            data.meta_title || '',
             data.meta_description,
             data.featured_image,
             data.status,
@@ -261,11 +281,20 @@ const Pages = {
     getAll: () => {
         return db.prepare('SELECT * FROM pages ORDER BY created_at DESC').all();
     },
+    getPublished: () => {
+        return db.prepare("SELECT * FROM pages WHERE status = 'published' ORDER BY created_at DESC").all();
+    },
     getBySlug: (slug) => {
         return db.prepare('SELECT * FROM pages WHERE slug = ?').get(slug);
     },
     getById: (id) => {
         return db.prepare('SELECT * FROM pages WHERE id = ?').get(id);
+    },
+    count: () => {
+        return db.prepare('SELECT COUNT(*) as count FROM pages').get().count;
+    },
+    countPublished: () => {
+        return db.prepare("SELECT COUNT(*) as count FROM pages WHERE status = 'published'").get().count;
     }
 };
 

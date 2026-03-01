@@ -3,7 +3,20 @@ const router = express.Router();
 const { db, Settings, Posts, Pages } = require('../models/database');
 const axios = require('axios');
 
-// --- SETTINGS ---
+function pingSitemap(req) {
+    const baseUrl = Settings.get('site_url') || `${req.protocol}://${req.get('host')}`;
+    const sitemapUrl = `${baseUrl}/sitemap.xml`;
+    const urls = [
+        `https://www.google.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`,
+        `https://www.bing.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`
+    ];
+    urls.forEach(url => {
+        axios.get(url, { timeout: 5000 }).then(() => {
+            console.log(`Ping sent: ${url}`);
+        }).catch(() => {});
+    });
+}
+
 router.get('/settings', (req, res) => {
     const settings = Settings.getAll();
     res.json({
@@ -13,6 +26,7 @@ router.get('/settings', (req, res) => {
             api_host: settings.api_host || '',
             api_endpoint: settings.api_endpoint || '',
             site_name: settings.site_name || 'BroqInsta',
+            site_url: settings.site_url || '',
             contact_email: settings.contact_email || 'contact@infiniterankers.com',
             ads_header: settings.ads_header || ''
         }
@@ -20,11 +34,12 @@ router.get('/settings', (req, res) => {
 });
 
 router.post('/settings', (req, res) => {
-    const { api_key, api_host, api_endpoint, site_name, contact_email, ads_header } = req.body;
+    const { api_key, api_host, api_endpoint, site_name, site_url, contact_email, ads_header } = req.body;
     if (api_key) Settings.set('api_key', api_key);
     if (api_host) Settings.set('api_host', api_host);
     if (api_endpoint) Settings.set('api_endpoint', api_endpoint);
     if (site_name) Settings.set('site_name', site_name);
+    if (site_url !== undefined) Settings.set('site_url', site_url);
     if (contact_email) Settings.set('contact_email', contact_email);
     if (ads_header !== undefined) Settings.set('ads_header', ads_header);
     res.json({ success: true, message: 'Infrastructure updated successfully' });
@@ -73,7 +88,6 @@ router.post('/settings/api/test', async (req, res) => {
     }
 });
 
-// --- BLOG POSTS ---
 router.get('/blog/posts', (req, res) => {
     try {
         const posts = Posts.getAll();
@@ -86,6 +100,7 @@ router.get('/blog/posts', (req, res) => {
 router.post('/blog/posts', (req, res) => {
     try {
         const result = Posts.create(req.body);
+        pingSitemap(req);
         res.json({ success: true, id: result.lastInsertRowid });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
@@ -95,6 +110,7 @@ router.post('/blog/posts', (req, res) => {
 router.put('/blog/posts/:id', (req, res) => {
     try {
         Posts.update(req.params.id, req.body);
+        pingSitemap(req);
         res.json({ success: true, message: 'Post updated successfully' });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
@@ -104,13 +120,13 @@ router.put('/blog/posts/:id', (req, res) => {
 router.delete('/blog/posts/:id', (req, res) => {
     try {
         Posts.delete(req.params.id);
+        pingSitemap(req);
         res.json({ success: true, message: 'Post deleted successfully' });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
 });
 
-// --- PAGES ---
 router.get('/pages', (req, res) => {
     try {
         const pages = Pages.getAll();
@@ -123,6 +139,7 @@ router.get('/pages', (req, res) => {
 router.post('/pages', (req, res) => {
     try {
         const result = Pages.create(req.body);
+        pingSitemap(req);
         res.json({ success: true, id: result.lastInsertRowid });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
@@ -132,6 +149,7 @@ router.post('/pages', (req, res) => {
 router.put('/pages/:id', (req, res) => {
     try {
         Pages.update(req.params.id, req.body);
+        pingSitemap(req);
         res.json({ success: true, message: 'Page updated successfully' });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
@@ -141,17 +159,21 @@ router.put('/pages/:id', (req, res) => {
 router.delete('/pages/:id', (req, res) => {
     try {
         Pages.delete(req.params.id);
+        pingSitemap(req);
         res.json({ success: true, message: 'Page deleted successfully' });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
 });
 
-// --- ANALYTICS ---
 router.get('/stats', (req, res) => {
     try {
         const totalDownloads = db.prepare('SELECT COUNT(*) as count FROM download_logs').get().count;
         const activeUsers = db.prepare('SELECT COUNT(DISTINCT ip_address) as count FROM download_logs').get().count;
+        const totalPosts = Posts.count();
+        const totalPages = Pages.count();
+        const publishedPosts = Posts.countPublished();
+        const publishedPages = Pages.countPublished();
         const recentLogs = db.prepare('SELECT * FROM download_logs ORDER BY created_at DESC LIMIT 10').all().map(log => ({
             created_at: log.created_at,
             url: log.instagram_url,
@@ -163,6 +185,10 @@ router.get('/stats', (req, res) => {
             success: true,
             totalDownloads,
             activeUsers,
+            totalPosts,
+            totalPages,
+            publishedPosts,
+            publishedPages,
             recentLogs
         });
     } catch (err) {
@@ -190,7 +216,6 @@ router.get('/analytics/overview', (req, res) => {
     }
 });
 
-// --- AD MANAGER (Ad Inserter) ---
 router.get('/ads', (req, res) => {
     const ads = db.prepare('SELECT * FROM ad_blocks ORDER BY created_at DESC').all();
     res.json({ success: true, ads });
