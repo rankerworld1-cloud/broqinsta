@@ -9,6 +9,7 @@ const fs = require('fs');
 
 const { initSchema, Settings, Posts, Pages } = require('./models/database');
 const securityFilter = require('./middleware/securityFilter');
+const { globalLimiter, loginLimiter, apiLimiter } = require('./middleware/rateLimiter');
 
 console.log('🚀 Starting BroqInsta Server...');
 console.log('📦 Checking database...');
@@ -71,9 +72,33 @@ app.use((req, res, next) => {
     }
 });
 
-app.use(helmet({ contentSecurityPolicy: false }));
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdn.tailwindcss.com", "https://cdn.jsdelivr.net", "https://pagead2.googlesyndication.com", "https://*.adtrafficquality.google", "https://cdn.ckeditor.com"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.ckeditor.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com"],
+            imgSrc: ["'self'", "data:", "https:", "blob:"],
+            connectSrc: ["'self'", "https://pagead2.googlesyndication.com", "https://*.google.com", "https://*.googleapis.com", "https://*.adtrafficquality.google"],
+            frameSrc: ["'self'", "https://googleads.g.doubleclick.net", "https://*.google.com"],
+            objectSrc: ["'none'"],
+            upgradeInsecureRequests: []
+        }
+    },
+    crossOriginEmbedderPolicy: false
+}));
 app.use(compression());
-app.use(cors());
+app.use(cors({
+    origin: function(origin, callback) {
+        if (!origin) return callback(null, true);
+        const siteUrl = Settings.get('site_url');
+        if (siteUrl && origin === siteUrl) return callback(null, true);
+        callback(null, false);
+    },
+    credentials: true
+}));
+app.use(globalLimiter);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -86,9 +111,10 @@ app.use(session({
     saveUninitialized: false,
     name: 'broqinsta.sid',
     cookie: {
-        secure: false,
+        secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
-        maxAge: 30 * 24 * 60 * 60 * 1000
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+        sameSite: 'lax'
     }
 }));
 
@@ -141,6 +167,20 @@ app.get('/api/pages/:slug', (req, res) => {
     }
 });
 
+app.get('/', (req, res) => {
+    try {
+        const siteUrl = getSiteUrl(req);
+        const latestPosts = getLatestPosts();
+        res.render('index', { siteUrl, latestPosts });
+    } catch (err) {
+        res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    }
+});
+
+app.get('/about-us', (req, res) => {
+    res.redirect(301, '/about');
+});
+
 app.get('/blog/:slug', (req, res) => {
     res.redirect(301, '/' + req.params.slug);
 });
@@ -180,11 +220,11 @@ app.use(express.static(path.join(__dirname, 'public'), {
     etag: true
 }));
 
-app.use('/api', apiRoutes);
+app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/', sitemapRoutes);
 
-const staticPages = ['how-it-works', 'faq', 'contact', 'privacy', 'terms', 'about'];
+const staticPages = ['how-it-works', 'faq', 'contact', 'privacy', 'terms', 'about', 'services', 'case-studies'];
 staticPages.forEach(pg => {
     app.get(`/${pg}`, (req, res) => {
         try {
@@ -247,7 +287,13 @@ app.get('/:slug', (req, res, next) => {
 });
 
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    try {
+        const siteUrl = getSiteUrl(req);
+        const latestPosts = getLatestPosts();
+        res.status(404).render('index', { siteUrl, latestPosts });
+    } catch (err) {
+        res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    }
 });
 
 app.listen(PORT, '0.0.0.0', () => {

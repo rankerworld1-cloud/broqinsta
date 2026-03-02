@@ -14,6 +14,9 @@ BroqInsta is a professional Instagram video/content downloader SaaS application 
 ```
 server.js           - Main Express server entry point
 views/              - EJS templates for SSR
+  index.ejs         - Homepage (SSR with testimonials, blog preview, workflow steps, CTA)
+  services.ejs      - Services page (SSR with 4 service cards, FAQPage schema)
+  case-studies.ejs   - Case studies page (SSR with 3 case studies)
   blog-post.ejs     - Server-rendered blog post page
   page.ejs          - Server-rendered CMS page (with breadcrumbs)
   blog.ejs          - Server-rendered blog listing
@@ -25,15 +28,16 @@ views/              - EJS templates for SSR
   privacy.ejs       - Privacy policy page (SSR)
   terms.ejs         - Terms of service page (SSR)
   partials/
-    header.ejs      - Shared header partial
+    header.ejs      - Shared header partial (Home, Services, Blog, Guide, FAQ, Support)
     footer.ejs      - Shared footer partial (all page links + Latest Posts)
 models/database.js  - Database models (Settings, Admin, Posts, Pages, Logs)
 routes/admin.js     - Admin API routes (CRUD, stats, ads, settings, SEO checker)
 routes/api.js       - Public API routes (download, contact, ads, proxy download)
-routes/auth.js      - Authentication routes (login/logout)
+routes/auth.js      - Authentication routes (login/logout with login rate limiter)
 routes/setup.js     - First-time setup wizard
 routes/sitemap.js   - Sitemap XML/TXT, robots.txt, RSS feed
 middleware/         - Express middleware (adminAuth, rateLimiter, securityFilter, setupCheck)
+  rateLimiter.js    - Exports globalLimiter, loginLimiter, apiLimiter
 public/             - Static frontend files (HTML for admin panel, CSS, JS, images)
 public/admin/       - Admin panel (dashboard, blog-manager, pages-manager, etc.)
 database/           - SQLite database files
@@ -56,22 +60,35 @@ database/           - SQLite database files
 - Instagram content downloading via RapidAPI
 - Admin panel with session-based authentication
 - Blog/pages CMS with category, meta_title, meta_description, tags, featured_image
-- **Full SSR**: ALL pages (blog posts, CMS pages, static pages, blog listing, all-pages directory) rendered via EJS templates — Googlebot sees full HTML content, no JavaScript dependency
+- **Full SSR**: ALL pages (homepage, services, case-studies, blog posts, CMS pages, static pages, blog listing, all-pages directory) rendered via EJS templates
 - Related posts API (same category matching)
 - Full SEO: sitemap.xml, robots.txt, RSS feed, auto Google/Bing ping on content changes
 - All pages have: OG tags, Twitter Cards, canonical URLs, breadcrumbs (schema.org), meta descriptions
-- **SEO Readiness Checker**: Admin endpoint `/api/admin/seo-check/:type/:slug` validates meta description, 600-word minimum, H1 tags, canonical URL, sitemap inclusion
-- **Publish Confirmation**: After saving posts/pages, admin sees green checklist confirming slug, sitemap update, Google/Bing ping, SSR status
-- **Internal Linking**: Footer links to all pages, /all-pages directory, Latest Posts section, no orphan pages
+- Organization JSON-LD schema on homepage
+- FAQPage JSON-LD schema on services page
+- BlogPosting JSON-LD schema on blog posts
+- **SEO Readiness Checker**: Admin endpoint `/api/admin/seo-check/:type/:slug`
+- **Publish Confirmation**: After saving posts/pages, admin sees green checklist
+- **Internal Linking**: Footer links to all pages, /all-pages directory, Latest Posts section
 - Ad management system (position-based: header, before/after/middle content, footer)
 - Dashboard with 6-stat grid (downloads, users, posts, pages, sitemap, RSS)
 - Setup wizard for first-time configuration
-- Security filtering and rate limiting
+
+## Security
+- **CSP**: Helmet with Content Security Policy enabled (whitelisted: Tailwind CDN, Google Fonts, CKEditor, AdSense)
+- **CORS**: Restricted to same-origin with credentials
+- **Rate Limiting**: Global limiter (1000/hour), login limiter (5/15min), API limiter (30/min)
+- **Cookies**: httpOnly, sameSite: lax, secure in production
+- **Passwords**: bcrypt hashed
+- **SQL**: Parameterized queries (no injection)
+- **Security Filter**: Blocks .env/.db access
+- **Compression**: Gzip via compression middleware
 
 ## URL Routing
 - WordPress-style clean URLs: `/:slug` catch-all checks posts then pages
-- **301 redirects**: `/blog/:slug` and `/page/:slug` redirect to `/:slug` to prevent duplicate content
-- **Trailing-slash normalization**: `/about/` → 301 → `/about` (prevents duplicate URLs)
+- **301 redirects**: `/blog/:slug`, `/page/:slug` → `/:slug`; `/about-us` → `/about`
+- **Trailing-slash normalization**: `/about/` → 301 → `/about`
+- Static pages: how-it-works, faq, contact, privacy, terms, about, services, case-studies
 - Sitemap, RSS feed, and all internal links use clean `/slug` format
 
 ## Admin Panel Pages
@@ -93,9 +110,9 @@ database/           - SQLite database files
 - `ad_blocks`: name, code, position, status, paragraph_number
 
 ## SEO Routes
-- `/sitemap.xml` - Dynamic XML sitemap (clean `/slug` URLs, includes /all-pages)
+- `/sitemap.xml` - Dynamic XML sitemap (includes /services, /case-studies, all URLs)
 - `/sitemap.txt` - Plain text sitemap (all URLs)
-- `/robots.txt` - `Allow: /` with sitemap reference (no disallow rules)
+- `/robots.txt` - `Allow: /` with sitemap reference
 - `/rss.xml` - RSS 2.0 feed (clean `/slug` URLs)
 - `/feed` - Redirect to RSS feed
 - `/all-pages` - Complete directory of all site URLs (SSR)

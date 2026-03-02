@@ -17,6 +17,8 @@ router.get('/sitemap.xml', (req, res) => {
             { loc: '/privacy', priority: '0.5', changefreq: 'monthly' },
             { loc: '/terms', priority: '0.5', changefreq: 'monthly' },
             { loc: '/about', priority: '0.8', changefreq: 'monthly' },
+            { loc: '/services', priority: '0.8', changefreq: 'weekly' },
+            { loc: '/case-studies', priority: '0.7', changefreq: 'monthly' },
             { loc: '/all-pages', priority: '0.6', changefreq: 'weekly' }
         ];
 
@@ -68,7 +70,7 @@ router.get('/sitemap.txt', (req, res) => {
         const posts = Posts.getPublished();
         const pages = Pages.getPublished();
 
-        const staticUrls = ['/', '/blog', '/how-it-works', '/faq', '/contact', '/privacy', '/terms', '/about', '/all-pages'];
+        const staticUrls = ['/', '/blog', '/how-it-works', '/faq', '/contact', '/privacy', '/terms', '/about', '/services', '/case-studies', '/all-pages'];
 
         let sitemap = '';
         staticUrls.forEach(url => { sitemap += `${siteUrl}${url}\n`; });

@@ -1,22 +1,36 @@
 const rateLimit = require('express-rate-limit');
-const Settings = require('../models/Settings');
 
-// Dynamic limiter that checks settings
-const limiter = rateLimit({
-    windowMs: 3600000, // 1 hour
-    max: 1000, // Increased significantly as requested
+const globalLimiter = rateLimit({
+    windowMs: 3600000,
+    max: 1000,
     message: {
         success: false,
-        error: "System busy. Please try again in 5 minutes."
+        error: "Too many requests. Please try again later."
     },
     standardHeaders: true,
     legacyHeaders: false,
 });
 
-// Wrapper to allow potential dynamic updates if needed
-const dynamicRateLimiter = (req, res, next) => {
-    // Basic protection with a high ceiling
-    return limiter(req, res, next);
-};
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    message: {
+        success: false,
+        error: "Too many login attempts. Please try again in 15 minutes."
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
 
-module.exports = dynamicRateLimiter;
+const apiLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 30,
+    message: {
+        success: false,
+        error: "Rate limit exceeded. Please slow down."
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+module.exports = { globalLimiter, loginLimiter, apiLimiter };

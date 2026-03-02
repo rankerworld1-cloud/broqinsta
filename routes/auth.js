@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { Admin, Settings } = require('../models/database');
+const { loginLimiter } = require('../middleware/rateLimiter');
 
-router.post('/login', async (req, res) => {
+router.post('/login', loginLimiter, async (req, res) => {
     const { email, password } = req.body;
 
     // SECURITY: Removed insecure master password fallback
