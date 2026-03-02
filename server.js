@@ -93,7 +93,8 @@ app.use(cors({
     origin: function(origin, callback) {
         if (!origin) return callback(null, true);
         const siteUrl = Settings.get('site_url');
-        if (siteUrl && origin === siteUrl) return callback(null, true);
+        if (!siteUrl) return callback(null, true);
+        if (origin === siteUrl) return callback(null, true);
         callback(null, false);
     },
     credentials: true
