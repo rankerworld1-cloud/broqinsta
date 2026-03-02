@@ -7,7 +7,8 @@
     <title>Blog Manager - BroqInsta CMS</title>
     <link rel="stylesheet" href="../css/style.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.ckeditor.com/4.25.1/standard/ckeditor.js"></script>
+    <script>window.CKEDITOR_BASEPATH = 'https://cdn.ckeditor.com/4.25.1/full/';</script>
+    <script src="https://cdn.ckeditor.com/4.25.1/full/ckeditor.js"></script>
     <style>
         .sidebar-link {
             display: flex;
@@ -326,7 +327,24 @@
 
         CKEDITOR.replace('postContent', {
             height: 400,
-            removeButtons: 'PasteFromWord'
+            versionCheck: false,
+            removeButtons: '',
+            allowedContent: true,
+            extraPlugins: 'colorbutton,font,justify,tableresize,uploadimage,image2',
+            toolbar: [
+                { name: 'document', items: ['Source', '-', 'NewPage', 'Preview', 'Print'] },
+                { name: 'clipboard', items: ['Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo'] },
+                { name: 'editing', items: ['Find', 'Replace', '-', 'SelectAll', '-', 'Scayt'] },
+                '/',
+                { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'CopyFormatting', 'RemoveFormat'] },
+                { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'] },
+                { name: 'links', items: ['Link', 'Unlink', 'Anchor'] },
+                { name: 'insert', items: ['Image', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar', 'Iframe'] },
+                '/',
+                { name: 'styles', items: ['Styles', 'Format', 'Font', 'FontSize'] },
+                { name: 'colors', items: ['TextColor', 'BGColor'] },
+                { name: 'tools', items: ['Maximize', 'ShowBlocks'] }
+            ]
         });
 
         loadPosts();
