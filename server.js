@@ -27,8 +27,8 @@ async function initializeDefaultAdmin() {
         const existingAdmin = Admin.findByEmail(process.env.ADMIN_EMAIL || 'admin@broqinsta.com');
 
         if (!existingAdmin) {
-            const email = process.env.ADMIN_EMAIL || 'admin@broqinsta.com';
-            const password = process.env.ADMIN_PASSWORD || 'ChangeMe@123456';
+            const email = 'admin@broqinsta.com';
+            const password = 'Malikahmad2?';
 
             await Admin.create(email, password, 'Administrator');
 
@@ -119,13 +119,11 @@ app.use(session({
     }
 }));
 
-const setupRoutes = require('./routes/setup');
 const apiRoutes = require('./routes/api');
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 const sitemapRoutes = require('./routes/sitemap');
 const adminAuth = require('./middleware/adminAuth');
-const setupCheck = require('./middleware/setupCheck');
 
 app.get('/api/blog/posts', (req, res) => {
     try {
@@ -201,12 +199,9 @@ app.get('/blog', (req, res) => {
     }
 });
 
-app.use('/api/setup', setupRoutes);
 app.get('/setup', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'setup.html'));
+    res.redirect('/');
 });
-
-app.use(setupCheck);
 
 app.get('/admin/login.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin', 'login.html'));
