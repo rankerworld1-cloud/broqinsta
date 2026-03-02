@@ -82,7 +82,6 @@ app.use(helmet({
             imgSrc: ["'self'", "data:", "https:", "blob:"],
             connectSrc: ["'self'", "https://pagead2.googlesyndication.com", "https://*.google.com", "https://*.googleapis.com", "https://*.adtrafficquality.google"],
             frameSrc: ["'self'", "https://googleads.g.doubleclick.net", "https://*.google.com"],
-            mediaSrc: ["'self'", "https:", "blob:"],
             objectSrc: ["'none'"],
             upgradeInsecureRequests: []
         }

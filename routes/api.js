@@ -123,13 +123,11 @@ router.post('/download', async (req, res) => {
 
         console.log('✅ Video URL extracted successfully');
 
-        const isImage = /\.(jpg|jpeg|png|webp)(\?|$)/i.test(videoUrl);
         res.json({
             success: true,
             videoUrl: videoUrl,
             thumbnail: thumbnail,
-            title: data.title || 'Instagram Media',
-            mediaType: isImage ? 'image' : 'video'
+            title: data.title || 'Instagram Media'
         });
 
     } catch (err) {
