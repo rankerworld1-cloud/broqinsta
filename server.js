@@ -1,118 +1,129 @@
 const express = require('express');
 const session = require('express-session');
+const SQLiteStore = require('connect-sqlite3')(session);
 const path = require('path');
 const helmet = require('helmet');
 const compression = require('compression');
 const cors = require('cors');
 const fs = require('fs');
 
-const dbModule = require('./models/database');
-const { Settings, Posts, Pages, initSchema, initDatabase, Admin } = dbModule;
+const { initSchema, Settings, Posts, Pages } = require('./models/database');
+const securityFilter = require('./middleware/securityFilter');
+const { globalLimiter, loginLimiter, apiLimiter } = require('./middleware/rateLimiter');
 
-const securityFilter = (() => { try { return require('./middleware/securityFilter'); } catch(e) { return (req, res, next) => next(); } })();
-
-const { globalLimiter, loginLimiter, apiLimiter } = (() => {
-    try { return require('./middleware/rateLimiter'); } catch(e) {
-        const p = (req, res, next) => next();
-        return { globalLimiter: p, loginLimiter: p, apiLimiter: p };
-    }
-})();
-
-async function startServer() {
-    console.log('🚀 Starting BroqInsta Server...');
-
-    console.log('📦 Initializing database...');
-    await initDatabase();
-    console.log('✅ Database engine ready');
-
+console.log('🚀 Starting BroqInsta Server...');
+console.log('📦 Checking database...');
+try {
     initSchema();
-    console.log('✅ Schema initialized');
+    console.log('✅ Database initialized');
+    initializeDefaultAdmin();
+} catch (err) {
+    console.error('❌ Database initialization failed:', err.message);
+}
 
-    const existingAdmin = Admin.findByEmail('admin@broqinsta.com');
-    if (!existingAdmin) {
-        await Admin.create('admin@broqinsta.com', 'Malikahmad2?', 'Administrator');
-        console.log('✅ Admin account created');
-    } else {
-        console.log('✅ Admin account exists');
-    }
+async function initializeDefaultAdmin() {
+    try {
+        const { Admin } = require('./models/database');
+        const existingAdmin = Admin.findByEmail(process.env.ADMIN_EMAIL || 'admin@broqinsta.com');
 
-    const app = express();
-    const PORT = process.env.PORT || 3000;
+        if (!existingAdmin) {
+            const email = 'admin@broqinsta.com';
+            const password = 'Malikahmad2?';
 
-    app.set('trust proxy', 1);
-    app.set('view engine', 'ejs');
-    app.set('views', path.join(__dirname, 'views'));
+            await Admin.create(email, password, 'Administrator');
 
-    function getSiteUrl(req) {
-        return Settings.get('site_url') || `${req.protocol}://${req.get('host')}`;
-    }
-
-    function getLatestPosts() {
-        try { return Posts.getPublished().slice(0, 5); } catch (e) { return []; }
-    }
-
-    app.use((req, res, next) => {
-        if (req.path !== '/' && req.path.endsWith('/') && !req.path.startsWith('/admin')) {
-            const query = req.url.slice(req.path.length);
-            res.redirect(301, req.path.slice(0, -1) + query);
+            console.log('');
+            console.log('⚠️  ═══════════════════════════════════════════');
+            console.log('⚠️  DEFAULT ADMIN ACCOUNT CREATED');
+            console.log('⚠️  ═══════════════════════════════════════════');
+            console.log('📧 Email:', email);
+            console.log('🔑 Password: [SET FROM ENVIRONMENT]');
+            console.log('⚠️  ═══════════════════════════════════════════');
+            console.log('');
         } else {
-            next();
+            console.log('✅ Admin account exists');
         }
-    });
+    } catch (err) {
+        console.error('❌ Admin initialization failed:', err.message);
+    }
+}
 
-    app.use(helmet({
-        contentSecurityPolicy: {
-            directives: {
-                defaultSrc: ["'self'"],
-                scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdn.jsdelivr.net", "https://pagead2.googlesyndication.com", "https://*.adtrafficquality.google", "https://cdn.ckeditor.com"],
-                styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.jsdelivr.net", "https://cdn.ckeditor.com"],
-                fontSrc: ["'self'", "https://fonts.gstatic.com"],
-                imgSrc: ["'self'", "data:", "https:", "blob:"],
-                connectSrc: ["'self'", "https://pagead2.googlesyndication.com", "https://*.google.com", "https://*.googleapis.com", "https://*.adtrafficquality.google"],
-                frameSrc: ["'self'", "https://googleads.g.doubleclick.net", "https://*.google.com", "https://*.adtrafficquality.google"],
-                objectSrc: ["'none'"],
-                upgradeInsecureRequests: []
-            }
-        },
-        crossOriginEmbedderPolicy: false
-    }));
-    app.use(compression());
-    app.use(cors({
-        origin: function(origin, callback) {
-            if (!origin) return callback(null, true);
-            const siteUrl = Settings.get('site_url');
-            if (!siteUrl) return callback(null, true);
-            if (origin === siteUrl) return callback(null, true);
-            callback(null, false);
-        },
-        credentials: true
-    }));
-    app.use(globalLimiter);
-    app.use(express.json());
-    app.use(express.urlencoded({ extended: true }));
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-    app.use(session({
-        secret: Settings.get('session_secret') || 'broqinsta_production_secret',
-        resave: false,
-        saveUninitialized: false,
-        name: 'broqinsta.sid',
-        cookie: {
-            secure: false,
-            httpOnly: true,
-            maxAge: 30 * 24 * 60 * 60 * 1000,
-            sameSite: 'lax'
+app.set('trust proxy', 1);
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+function getSiteUrl(req) {
+    return Settings.get('site_url') || `${req.protocol}://${req.get('host')}`;
+}
+
+function getLatestPosts() {
+    try { return Posts.getPublished().slice(0, 5); } catch (e) { return []; }
+}
+
+app.use((req, res, next) => {
+    if (req.path !== '/' && req.path.endsWith('/')) {
+        const query = req.url.slice(req.path.length);
+        res.redirect(301, req.path.slice(0, -1) + query);
+    } else {
+        next();
+    }
+});
+
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdn.tailwindcss.com", "https://cdn.jsdelivr.net", "https://pagead2.googlesyndication.com", "https://*.adtrafficquality.google", "https://cdn.ckeditor.com"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.ckeditor.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com"],
+            imgSrc: ["'self'", "data:", "https:", "blob:"],
+            connectSrc: ["'self'", "https://pagead2.googlesyndication.com", "https://*.google.com", "https://*.googleapis.com", "https://*.adtrafficquality.google"],
+            frameSrc: ["'self'", "https://googleads.g.doubleclick.net", "https://*.google.com"],
+            objectSrc: ["'none'"],
+            upgradeInsecureRequests: []
         }
-    }));
+    },
+    crossOriginEmbedderPolicy: false
+}));
+app.use(compression());
+app.use(cors({
+    origin: function(origin, callback) {
+        if (!origin) return callback(null, true);
+        const siteUrl = Settings.get('site_url');
+        if (!siteUrl) return callback(null, true);
+        if (origin === siteUrl) return callback(null, true);
+        callback(null, false);
+    },
+    credentials: true
+}));
+app.use(globalLimiter);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+const sessionStore = new SQLiteStore({ db: 'sessions.db', dir: './database' });
+
+app.use(session({
+    store: sessionStore,
+    secret: Settings.get('session_secret') || 'broqinsta_production_secret',
+    resave: false,
+    saveUninitialized: false,
+    name: 'broqinsta.sid',
+    cookie: {
+        secure: false,
+        httpOnly: true,
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+        sameSite: 'lax'
+    }
+}));
 
 const apiRoutes = require('./routes/api');
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 const sitemapRoutes = require('./routes/sitemap');
 const adminAuth = require('./middleware/adminAuth');
-
-app.get('/health', (req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
 
 app.get('/api/blog/posts', (req, res) => {
     try {
@@ -200,18 +211,14 @@ app.get('/admin', adminAuth, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin', 'dashboard.html'));
 });
 
-app.get('/admin/', adminAuth, (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'admin', 'dashboard.html'));
-});
-
-app.use('/css', express.static(path.join(__dirname, 'public', 'css'), { maxAge: '7d' }));
-app.use('/js', express.static(path.join(__dirname, 'public', 'js'), { maxAge: '7d' }));
-app.use('/images', express.static(path.join(__dirname, 'public', 'images'), { maxAge: '7d' }));
-app.use('/fonts', express.static(path.join(__dirname, 'public', 'fonts'), { maxAge: '7d' }));
+app.use('/admin', adminAuth, express.static(path.join(__dirname, 'public', 'admin'), { redirect: false }));
 
 app.use(securityFilter);
 
-app.use('/admin', adminAuth, express.static(path.join(__dirname, 'public', 'admin'), { redirect: false }));
+app.use(express.static(path.join(__dirname, 'public'), {
+    maxAge: '1d',
+    etag: true
+}));
 
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
@@ -285,23 +292,10 @@ app.get('*', (req, res) => {
     }
 });
 
-    const server = app.listen(PORT, '0.0.0.0', () => {
-        console.log(`🌐 Server running on port ${PORT}`);
-    });
-
-    server.on('error', (err) => {
-        if (err.code === 'EADDRINUSE') {
-            console.error(`❌ Port ${PORT} is already in use. Trying port ${PORT + 1}...`);
-            app.listen(PORT + 1, '0.0.0.0', () => {
-                console.log(`🌐 Server running on port ${PORT + 1}`);
-            });
-        } else {
-            throw err;
-        }
-    });
-}
-
-startServer().catch(err => {
-    console.error('❌ Fatal startup error:', err);
-    process.exit(1);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🌐 Server running on port ${PORT}`);
+    const completed = Settings.get('setup_complete') === '1';
+    if (!completed) {
+        console.log('📝 First time? Visit: https://your-domain.com/setup');
+    }
 });

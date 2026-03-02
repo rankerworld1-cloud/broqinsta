@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Settings, Posts, Pages, Logs } = require('../models/database');
+const { db, Settings, Posts, Pages } = require('../models/database');
 const axios = require('axios');
 
 function pingSitemap(req) {
@@ -104,6 +104,7 @@ router.post('/blog/posts', (req, res) => {
         const baseUrl = Settings.get('site_url') || `${req.protocol}://${req.get('host')}`;
         res.json({
             success: true,
+            id: result.lastInsertRowid,
             confirmation: {
                 slug: req.body.slug,
                 url: `${baseUrl}/${req.body.slug}`,
@@ -168,6 +169,7 @@ router.post('/pages', (req, res) => {
         const baseUrl = Settings.get('site_url') || `${req.protocol}://${req.get('host')}`;
         res.json({
             success: true,
+            id: result.lastInsertRowid,
             confirmation: {
                 slug: req.body.slug,
                 url: `${baseUrl}/${req.body.slug}`,
@@ -216,20 +218,28 @@ router.delete('/pages/:id', (req, res) => {
 
 router.get('/stats', (req, res) => {
     try {
+        const totalDownloads = db.prepare('SELECT COUNT(*) as count FROM download_logs').get().count;
+        const activeUsers = db.prepare('SELECT COUNT(DISTINCT ip_address) as count FROM download_logs').get().count;
         const totalPosts = Posts.count();
         const totalPages = Pages.count();
         const publishedPosts = Posts.countPublished();
         const publishedPages = Pages.countPublished();
+        const recentLogs = db.prepare('SELECT * FROM download_logs ORDER BY created_at DESC LIMIT 10').all().map(log => ({
+            created_at: log.created_at,
+            url: log.instagram_url,
+            ip: log.ip_address,
+            status: log.status
+        }));
 
         res.json({
             success: true,
-            totalDownloads: 0,
-            activeUsers: 0,
+            totalDownloads,
+            activeUsers,
             totalPosts,
             totalPages,
             publishedPosts,
             publishedPages,
-            recentLogs: []
+            recentLogs
         });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
@@ -238,10 +248,18 @@ router.get('/stats', (req, res) => {
 
 router.get('/analytics/overview', (req, res) => {
     try {
+        const total = db.prepare('SELECT COUNT(*) as count FROM download_logs').get().count;
+        const success = db.prepare("SELECT COUNT(*) as count FROM download_logs WHERE status = 'success'").get().count;
+        const recent = db.prepare('SELECT * FROM download_logs ORDER BY created_at DESC LIMIT 10').all();
+
         res.json({
             success: true,
-            stats: { total: 0, success: 0, rate: 0 },
-            recent: []
+            stats: {
+                total,
+                success,
+                rate: total > 0 ? ((success / total) * 100).toFixed(1) : 0
+            },
+            recent
         });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
@@ -249,14 +267,24 @@ router.get('/analytics/overview', (req, res) => {
 });
 
 router.get('/ads', (req, res) => {
-    res.json({ success: true, ads: [] });
+    const ads = db.prepare('SELECT * FROM ad_blocks ORDER BY created_at DESC').all();
+    res.json({ success: true, ads });
 });
 
 router.post('/ads', (req, res) => {
+    const { id, name, code, position, status, paragraph_number } = req.body;
+    if (id) {
+        db.prepare('UPDATE ad_blocks SET name = ?, code = ?, position = ?, status = ?, paragraph_number = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
+            .run(name, code, position, status, paragraph_number, id);
+    } else {
+        db.prepare('INSERT INTO ad_blocks (name, code, position, status, paragraph_number) VALUES (?, ?, ?, ?, ?)')
+            .run(name, code, position, status, paragraph_number);
+    }
     res.json({ success: true });
 });
 
 router.delete('/ads/:id', (req, res) => {
+    db.prepare('DELETE FROM ad_blocks WHERE id = ?').run(req.params.id);
     res.json({ success: true });
 });
 

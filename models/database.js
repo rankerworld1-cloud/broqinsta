@@ -1,4 +1,4 @@
-const initSqlJs = require('sql.js');
+const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
@@ -10,74 +10,10 @@ if (!fs.existsSync(path.dirname(dbPath))) {
     fs.mkdirSync(path.dirname(dbPath), { recursive: true });
 }
 
-let db = null;
-let SQL = null;
-
-function getDb() {
-    if (db) return db;
-    throw new Error('Database not initialized. Call initDatabase() first.');
-}
-
-function saveDb() {
-    try {
-        const data = getDb().export();
-        const buffer = Buffer.from(data);
-        fs.writeFileSync(dbPath, buffer);
-    } catch (e) {
-        console.error('DB save error:', e.message);
-    }
-}
-
-function run(sql, ...params) {
-    const d = getDb();
-    d.run(sql, params);
-    const changes = d.getRowsModified();
-    saveDb();
-    const stmtId = d.exec("SELECT last_insert_rowid() as id");
-    const lastInsertRowid = (stmtId.length > 0 && stmtId[0].values.length > 0) ? stmtId[0].values[0][0] : null;
-    return { changes, lastInsertRowid };
-}
-
-function get(sql, ...params) {
-    const stmt = getDb().prepare(sql);
-    if (params.length > 0) stmt.bind(params);
-    if (stmt.step()) {
-        const row = stmt.getAsObject();
-        stmt.free();
-        return row;
-    }
-    stmt.free();
-    return undefined;
-}
-
-function all(sql, ...params) {
-    const stmt = getDb().prepare(sql);
-    if (params.length > 0) stmt.bind(params);
-    const results = [];
-    while (stmt.step()) {
-        results.push(stmt.getAsObject());
-    }
-    stmt.free();
-    return results;
-}
-
-async function initDatabase() {
-    SQL = await initSqlJs();
-
-    if (fs.existsSync(dbPath)) {
-        const fileBuffer = fs.readFileSync(dbPath);
-        db = new SQL.Database(fileBuffer);
-    } else {
-        db = new SQL.Database();
-    }
-
-    return db;
-}
+const db = new Database(dbPath);
 
 function initSchema() {
-    const d = getDb();
-
-    d.run(`
+    db.prepare(`
         CREATE TABLE IF NOT EXISTS site_settings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             setting_key TEXT UNIQUE NOT NULL,
@@ -85,9 +21,9 @@ function initSchema() {
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
-    `);
+    `).run();
 
-    d.run(`
+    db.prepare(`
         CREATE TABLE IF NOT EXISTS admins (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             email TEXT UNIQUE NOT NULL,
@@ -96,9 +32,9 @@ function initSchema() {
             last_login DATETIME,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
-    `);
+    `).run();
 
-    d.run(`
+    db.prepare(`
         CREATE TABLE IF NOT EXISTS download_logs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             instagram_url TEXT,
@@ -108,9 +44,9 @@ function initSchema() {
             download_time INTEGER,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
-    `);
+    `).run();
 
-    d.run(`
+    db.prepare(`
         CREATE TABLE IF NOT EXISTS posts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
@@ -126,9 +62,9 @@ function initSchema() {
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
-    `);
+    `).run();
 
-    d.run(`
+    db.prepare(`
         CREATE TABLE IF NOT EXISTS pages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
@@ -141,9 +77,9 @@ function initSchema() {
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
-    `);
+    `).run();
 
-    d.run(`
+    db.prepare(`
         CREATE TABLE IF NOT EXISTS ad_blocks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
@@ -154,11 +90,11 @@ function initSchema() {
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
-    `);
+    `).run();
 
-    try { d.run('ALTER TABLE posts ADD COLUMN meta_title TEXT'); } catch(e) {}
-    try { d.run('ALTER TABLE posts ADD COLUMN category TEXT DEFAULT "General"'); } catch(e) {}
-    try { d.run('ALTER TABLE pages ADD COLUMN meta_title TEXT'); } catch(e) {}
+    try { db.prepare('ALTER TABLE posts ADD COLUMN meta_title TEXT').run(); } catch(e) {}
+    try { db.prepare('ALTER TABLE posts ADD COLUMN category TEXT DEFAULT "General"').run(); } catch(e) {}
+    try { db.prepare('ALTER TABLE pages ADD COLUMN meta_title TEXT').run(); } catch(e) {}
 
     const defaultSettings = [
         ['site_name', 'BroqInsta'],
@@ -173,29 +109,28 @@ function initSchema() {
         ['setup_complete', '0']
     ];
 
+    const insertSetting = db.prepare('INSERT OR IGNORE INTO site_settings (setting_key, setting_value) VALUES (?, ?)');
     for (const [key, val] of defaultSettings) {
-        run('INSERT OR IGNORE INTO site_settings (setting_key, setting_value) VALUES (?, ?)', key, val);
+        insertSetting.run(key, val);
     }
-
-    saveDb();
 }
 
 const Settings = {
     get: (key) => {
-        const row = get('SELECT setting_value FROM site_settings WHERE setting_key = ?', key);
+        const row = db.prepare('SELECT setting_value FROM site_settings WHERE setting_key = ?').get(key);
         return row ? row.setting_value : null;
     },
     set: (key, value) => {
-        run(`
+        db.prepare(`
             INSERT INTO site_settings (setting_key, setting_value) 
             VALUES (?, ?) 
             ON CONFLICT(setting_key) DO UPDATE SET 
             setting_value = excluded.setting_value,
             updated_at = CURRENT_TIMESTAMP
-        `, key, value);
+        `).run(key, value);
     },
     getAll: () => {
-        const rows = all('SELECT setting_key, setting_value FROM site_settings');
+        const rows = db.prepare('SELECT setting_key, setting_value FROM site_settings').all();
         const settings = {};
         rows.forEach(r => settings[r.setting_key] = r.setting_value);
         return settings;
@@ -205,13 +140,13 @@ const Settings = {
 const Admin = {
     create: async (email, password, name = 'Admin') => {
         const hash = await bcrypt.hash(password, 10);
-        return run('INSERT INTO admins (email, password, name) VALUES (?, ?, ?)', email, hash, name);
+        return db.prepare('INSERT INTO admins (email, password, name) VALUES (?, ?, ?)').run(email, hash, name);
     },
     findByEmail: (email) => {
-        return get('SELECT * FROM admins WHERE email = ?', email);
+        return db.prepare('SELECT * FROM admins WHERE email = ?').get(email);
     },
     updateLastLogin: (id) => {
-        run('UPDATE admins SET last_login = CURRENT_TIMESTAMP WHERE id = ?', id);
+        db.prepare('UPDATE admins SET last_login = CURRENT_TIMESTAMP WHERE id = ?').run(id);
     },
     verifyPassword: async (password, hash) => {
         return await bcrypt.compare(password, hash);
@@ -220,20 +155,20 @@ const Admin = {
 
 const Logs = {
     addDownload: (data) => {
-        run(`
+        db.prepare(`
             INSERT INTO download_logs (instagram_url, ip_address, status, error_message, download_time) 
             VALUES (?, ?, ?, ?, ?)
-        `, data.url, data.ip, data.status, data.error, data.time);
+        `).run(data.url, data.ip, data.status, data.error, data.time);
     }
 };
 
 const Posts = {
     create: (data) => {
         try {
-            return run(`
+            return db.prepare(`
                 INSERT INTO posts (title, slug, excerpt, content, meta_title, meta_description, featured_image, category, tags, status) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            `,
+            `).run(
                 data.title,
                 data.slug,
                 data.excerpt,
@@ -246,19 +181,19 @@ const Posts = {
                 data.status || 'published'
             );
         } catch (error) {
-            if (error.message && error.message.includes('UNIQUE')) {
+            if (error.code === 'SQLITE_CONSTRAINT_UNIQUE') {
                 throw new Error('A post with this slug already exists. Please use a different slug.');
             }
             throw error;
         }
     },
     update: (id, data) => {
-        return run(`
+        return db.prepare(`
             UPDATE posts SET 
             title = ?, slug = ?, excerpt = ?, content = ?, meta_title = ?, meta_description = ?, 
             featured_image = ?, category = ?, tags = ?, status = ?, updated_at = CURRENT_TIMESTAMP 
             WHERE id = ?
-        `,
+        `).run(
             data.title,
             data.slug,
             data.excerpt,
@@ -273,43 +208,41 @@ const Posts = {
         );
     },
     delete: (id) => {
-        return run('DELETE FROM posts WHERE id = ?', id);
+        return db.prepare('DELETE FROM posts WHERE id = ?').run(id);
     },
     getAll: () => {
-        return all('SELECT * FROM posts ORDER BY created_at DESC');
+        return db.prepare('SELECT * FROM posts ORDER BY created_at DESC').all();
     },
     getPublished: () => {
-        return all("SELECT * FROM posts WHERE status = 'published' ORDER BY created_at DESC");
+        return db.prepare("SELECT * FROM posts WHERE status = 'published' ORDER BY created_at DESC").all();
     },
     getBySlug: (slug) => {
-        return get('SELECT * FROM posts WHERE slug = ?', slug);
+        return db.prepare('SELECT * FROM posts WHERE slug = ?').get(slug);
     },
     getById: (id) => {
-        return get('SELECT * FROM posts WHERE id = ?', id);
+        return db.prepare('SELECT * FROM posts WHERE id = ?').get(id);
     },
     getByCategory: (category) => {
-        return all("SELECT * FROM posts WHERE category = ? AND status = 'published' ORDER BY created_at DESC", category);
+        return db.prepare("SELECT * FROM posts WHERE category = ? AND status = 'published' ORDER BY created_at DESC").all(category);
     },
     getRelated: (postId, category, limit = 3) => {
-        return all("SELECT * FROM posts WHERE id != ? AND category = ? AND status = 'published' ORDER BY created_at DESC LIMIT ?", postId, category, limit);
+        return db.prepare("SELECT * FROM posts WHERE id != ? AND category = ? AND status = 'published' ORDER BY created_at DESC LIMIT ?").all(postId, category, limit);
     },
     count: () => {
-        const row = get('SELECT COUNT(*) as count FROM posts');
-        return row ? row.count : 0;
+        return db.prepare('SELECT COUNT(*) as count FROM posts').get().count;
     },
     countPublished: () => {
-        const row = get("SELECT COUNT(*) as count FROM posts WHERE status = 'published'");
-        return row ? row.count : 0;
+        return db.prepare("SELECT COUNT(*) as count FROM posts WHERE status = 'published'").get().count;
     }
 };
 
 const Pages = {
     create: (data) => {
         try {
-            return run(`
+            return db.prepare(`
                 INSERT INTO pages (title, slug, content, meta_title, meta_description, featured_image, status) 
                 VALUES (?, ?, ?, ?, ?, ?, ?)
-            `,
+            `).run(
                 data.title,
                 data.slug,
                 data.content,
@@ -319,19 +252,19 @@ const Pages = {
                 data.status || 'published'
             );
         } catch (error) {
-            if (error.message && error.message.includes('UNIQUE')) {
+            if (error.code === 'SQLITE_CONSTRAINT_UNIQUE') {
                 throw new Error('A page with this slug already exists.');
             }
             throw error;
         }
     },
     update: (id, data) => {
-        return run(`
+        return db.prepare(`
             UPDATE pages SET 
             title = ?, slug = ?, content = ?, meta_title = ?, meta_description = ?, 
             featured_image = ?, status = ?, updated_at = CURRENT_TIMESTAMP 
             WHERE id = ?
-        `,
+        `).run(
             data.title,
             data.slug,
             data.content,
@@ -343,28 +276,26 @@ const Pages = {
         );
     },
     delete: (id) => {
-        return run('DELETE FROM pages WHERE id = ?', id);
+        return db.prepare('DELETE FROM pages WHERE id = ?').run(id);
     },
     getAll: () => {
-        return all('SELECT * FROM pages ORDER BY created_at DESC');
+        return db.prepare('SELECT * FROM pages ORDER BY created_at DESC').all();
     },
     getPublished: () => {
-        return all("SELECT * FROM pages WHERE status = 'published' ORDER BY created_at DESC");
+        return db.prepare("SELECT * FROM pages WHERE status = 'published' ORDER BY created_at DESC").all();
     },
     getBySlug: (slug) => {
-        return get('SELECT * FROM pages WHERE slug = ?', slug);
+        return db.prepare('SELECT * FROM pages WHERE slug = ?').get(slug);
     },
     getById: (id) => {
-        return get('SELECT * FROM pages WHERE id = ?', id);
+        return db.prepare('SELECT * FROM pages WHERE id = ?').get(id);
     },
     count: () => {
-        const row = get('SELECT COUNT(*) as count FROM pages');
-        return row ? row.count : 0;
+        return db.prepare('SELECT COUNT(*) as count FROM pages').get().count;
     },
     countPublished: () => {
-        const row = get("SELECT COUNT(*) as count FROM pages WHERE status = 'published'");
-        return row ? row.count : 0;
+        return db.prepare("SELECT COUNT(*) as count FROM pages WHERE status = 'published'").get().count;
     }
 };
 
-module.exports = { Settings, Admin, Logs, Posts, Pages, initSchema, initDatabase };
+module.exports = { db, Settings, Admin, Logs, Posts, Pages, initSchema };
