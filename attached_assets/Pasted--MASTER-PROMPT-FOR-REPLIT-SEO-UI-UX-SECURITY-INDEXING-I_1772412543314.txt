@@ -1,0 +1,286 @@
+🔥 MASTER PROMPT FOR REPLIT (SEO + UI/UX + SECURITY + INDEXING)
+
+I am building a production-level SEO optimized website.
+You must follow enterprise standards.
+
+✅ 1️⃣ Create 5 New Pages (Fully SEO Optimized)
+
+Create these pages:
+
+/services
+
+/about-us
+
+/contact
+
+/case-studies
+
+/blog
+
+Each page must:
+
+Have 100% original content
+
+Be SEO optimized (semantic HTML structure)
+
+Include:
+
+Proper <title> (60 characters optimized)
+
+Meta description (155–160 characters)
+
+H1 (only one per page)
+
+Proper H2/H3 structure
+
+Internal linking
+
+Schema markup (JSON-LD)
+
+Fast loading
+
+Clean URL structure
+
+Mobile-first responsive design
+
+Modern UI/UX
+
+CTA sections
+
+Trust elements
+
+Clear workflow explanation section
+
+✅ 2️⃣ Homepage Must Be Premium Level
+
+Homepage requirements:
+
+Hero section (strong CTA)
+
+Services overview
+
+Workflow section (Step 1 → Step 4 visual blocks)
+
+Case study preview
+
+Testimonials section
+
+Blog preview
+
+Final strong CTA
+
+Clean animations (lightweight only, no heavy JS)
+
+Fully responsive
+
+Core Web Vitals optimized
+
+NO bloated JavaScript.
+Use server-rendered HTML (not client-only rendering).
+
+✅ 3️⃣ VERY IMPORTANT: Google Crawl & Index Optimization
+
+This is critical.
+
+Make sure:
+
+🔹 Server-Side Rendering (SSR)
+
+Googlebot must see FULL HTML without requiring JavaScript.
+
+🔹 robots.txt
+
+Create proper robots.txt:
+
+User-agent: *
+Allow: /
+Sitemap: https://domain.com/sitemap.xml
+
+No accidental disallow rules.
+
+🔹 Auto Dynamic Sitemap
+
+Automatically add every new page/blog to sitemap.xml
+
+Update lastmod dynamically
+
+No manual editing required
+
+Sitemap must update when new content is created
+
+🔹 Internal Linking
+
+Every page must link to 3+ other pages
+
+Blog posts linked from homepage
+
+Breadcrumb navigation
+
+🔹 XML Sitemap must include:
+
+Homepage
+
+All 5 new pages
+
+All blogs
+
+Any future pages automatically
+
+🔹 Canonical Tags
+
+Add self-referencing canonical tags on every page.
+
+🔹 Structured Data
+
+Add:
+
+Organization schema
+
+Breadcrumb schema
+
+BlogPosting schema (for blog pages)
+
+🔹 Fast TTFB
+
+Use minimal dependencies
+
+Enable compression
+
+Optimize images
+
+Lazy load images
+
+Google must be able to crawl instantly without JS errors.
+
+✅ 4️⃣ Fix AI Website Common Crawl Issues
+
+Avoid:
+
+Heavy client-side fetch rendering
+
+JS-only content
+
+Empty HTML body
+
+Delayed rendering
+
+Broken links
+
+404 loops
+
+Ensure:
+
+HTML content is visible when viewed via “View Page Source”
+
+Not only inside browser inspector
+
+🔐 5️⃣ Hardcore Security Requirements
+
+Security is extremely important.
+
+Implement:
+
+🔹 Admin Panel Protection
+
+Only 1 admin account allowed
+
+Disable public registration
+
+No “create new admin” endpoint exposed
+
+Admin route protected by authentication middleware
+
+Use hashed passwords (bcrypt)
+
+Add rate limiting
+
+Add CSRF protection
+
+Hide admin route from sitemap
+
+🔹 Setup Page Protection
+
+If setup is completed once:
+
+Disable setup route permanently
+
+Block future access
+
+Store setup flag in secure environment variable or DB
+
+🔹 API Protection
+
+Use environment variables for API keys
+
+Never expose secrets in frontend
+
+Protect all backend endpoints
+
+Validate all inputs
+
+Prevent SQL injection
+
+Enable CORS properly
+
+Add helmet (security headers)
+
+🔹 Add Security Headers
+
+Content Security Policy
+
+X-Frame-Options
+
+X-XSS-Protection
+
+Strict-Transport-Security
+
+🚀 6️⃣ Auto Indexing Structure
+
+Implement:
+
+Ping Google automatically when sitemap updates:
+https://www.google.com/ping?sitemap=https://domain.com/sitemap.xml
+
+Clean URL routing
+
+No hash routing (#)
+
+No query-based URLs for core pages
+
+⚡ 7️⃣ Performance Requirements
+
+Lighthouse score 90+
+
+Core Web Vitals optimized
+
+No unused JS
+
+CSS minified
+
+Images optimized
+
+Use proper caching headers
+
+Final Requirement
+
+This website must be:
+
+SEO ready
+
+Crawl ready
+
+Index ready
+
+Secure
+
+Scalable
+
+Clean architecture
+
+Production deployable
+
+Use best stack for SSR and SEO compatibility.
+
+No shortcuts.
+No demo-level code.
+Production quality only.
