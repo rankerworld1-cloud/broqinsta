@@ -16,7 +16,8 @@ router.get('/sitemap.xml', (req, res) => {
             { loc: '/contact', priority: '0.7', changefreq: 'monthly' },
             { loc: '/privacy', priority: '0.5', changefreq: 'monthly' },
             { loc: '/terms', priority: '0.5', changefreq: 'monthly' },
-            { loc: '/about', priority: '0.8', changefreq: 'monthly' }
+            { loc: '/about', priority: '0.8', changefreq: 'monthly' },
+            { loc: '/all-pages', priority: '0.6', changefreq: 'weekly' }
         ];
 
         let sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n';
@@ -67,7 +68,7 @@ router.get('/sitemap.txt', (req, res) => {
         const posts = Posts.getPublished();
         const pages = Pages.getPublished();
 
-        const staticUrls = ['/', '/blog', '/how-it-works', '/faq', '/contact', '/privacy', '/terms', '/about'];
+        const staticUrls = ['/', '/blog', '/how-it-works', '/faq', '/contact', '/privacy', '/terms', '/about', '/all-pages'];
 
         let sitemap = '';
         staticUrls.forEach(url => { sitemap += `${siteUrl}${url}\n`; });
@@ -86,8 +87,6 @@ router.get('/robots.txt', (req, res) => {
     const siteUrl = Settings.get('site_url') || `${req.protocol}://${req.get('host')}`;
     const robots = `User-agent: *
 Allow: /
-Disallow: /admin/
-Disallow: /api/admin/
 
 Sitemap: ${siteUrl}/sitemap.xml
 `;

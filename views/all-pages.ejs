@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Pages - BroqInsta Site Map</title>
+    <meta name="robots" content="index, follow">
+    <meta name="description" content="Complete directory of all pages and blog posts on BroqInsta. Find guides, articles, and resources.">
+    <link rel="canonical" href="<%= siteUrl %>/all-pages">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="All Pages - BroqInsta Site Map">
+    <meta property="og:description" content="Complete directory of all pages and blog posts on BroqInsta.">
+    <meta property="og:url" content="<%= siteUrl %>/all-pages">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-[#FAFBFC] min-h-screen flex flex-col">
+    <%- include('partials/header') %>
+
+    <main class="flex-grow container mx-auto px-4 py-12 max-w-4xl">
+        <nav class="mb-8 text-sm font-medium text-gray-400" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2" itemscope itemtype="https://schema.org/BreadcrumbList">
+                <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <a href="/" itemprop="item" class="hover:text-purple-600 transition-colors"><span itemprop="name">Home</span></a>
+                    <meta itemprop="position" content="1">
+                </li>
+                <li><span class="mx-2">/</span></li>
+                <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <span itemprop="name" class="text-gray-600">All Pages</span>
+                    <meta itemprop="position" content="2">
+                </li>
+            </ol>
+        </nav>
+
+        <div class="mb-16 text-center">
+            <h1 class="text-5xl md:text-6xl font-black text-gray-900 leading-tight mb-6">All Pages</h1>
+            <p class="text-xl text-gray-500 font-medium leading-relaxed max-w-2xl mx-auto">Complete directory of every page and article on BroqInsta.</p>
+        </div>
+
+        <div class="glass-card p-12 md:p-16 rounded-[3rem] bg-white shadow-2xl mb-16">
+            <h2 class="text-2xl font-black text-gray-900 mb-8">Site Pages</h2>
+            <ul class="space-y-4">
+                <li><a href="/" class="text-lg font-bold text-purple-600 hover:text-purple-800 transition-colors">Home</a></li>
+                <li><a href="/about" class="text-lg font-bold text-purple-600 hover:text-purple-800 transition-colors">About</a></li>
+                <li><a href="/how-it-works" class="text-lg font-bold text-purple-600 hover:text-purple-800 transition-colors">How It Works</a></li>
+                <li><a href="/faq" class="text-lg font-bold text-purple-600 hover:text-purple-800 transition-colors">FAQ</a></li>
+                <li><a href="/contact" class="text-lg font-bold text-purple-600 hover:text-purple-800 transition-colors">Contact</a></li>
+                <li><a href="/blog" class="text-lg font-bold text-purple-600 hover:text-purple-800 transition-colors">Blog</a></li>
+                <li><a href="/privacy" class="text-lg font-bold text-purple-600 hover:text-purple-800 transition-colors">Privacy Policy</a></li>
+                <li><a href="/terms" class="text-lg font-bold text-purple-600 hover:text-purple-800 transition-colors">Terms of Service</a></li>
+            </ul>
+        </div>
+
+        <% if (pages && pages.length > 0) { %>
+        <div class="glass-card p-12 md:p-16 rounded-[3rem] bg-white shadow-2xl mb-16">
+            <h2 class="text-2xl font-black text-gray-900 mb-8">CMS Pages</h2>
+            <ul class="space-y-4">
+                <% pages.forEach(function(pg) { %>
+                <li>
+                    <a href="/<%= pg.slug %>" class="text-lg font-bold text-purple-600 hover:text-purple-800 transition-colors"><%= pg.title %></a>
+                    <% if (pg.meta_description) { %>
+                    <p class="text-sm text-gray-400 mt-1"><%= pg.meta_description %></p>
+                    <% } %>
+                </li>
+                <% }); %>
+            </ul>
+        </div>
+        <% } %>
+
+        <% if (posts && posts.length > 0) { %>
+        <div class="glass-card p-12 md:p-16 rounded-[3rem] bg-white shadow-2xl">
+            <h2 class="text-2xl font-black text-gray-900 mb-8">Blog Posts</h2>
+            <ul class="space-y-4">
+                <% posts.forEach(function(post) { %>
+                <li>
+                    <a href="/<%= post.slug %>" class="text-lg font-bold text-purple-600 hover:text-purple-800 transition-colors"><%= post.title %></a>
+                    <span class="text-xs text-gray-400 ml-2"><%= new Date(post.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) %></span>
+                    <% if (post.excerpt) { %>
+                    <p class="text-sm text-gray-400 mt-1"><%= post.excerpt %></p>
+                    <% } %>
+                </li>
+                <% }); %>
+            </ul>
+        </div>
+        <% } %>
+    </main>
+
+    <%- include('partials/footer') %>
+</body>
+
+</html>

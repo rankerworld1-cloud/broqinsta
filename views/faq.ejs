@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service FAQ - BroqInsta Professional Support</title>
+    <meta name="robots" content="index, follow">
+    <meta name="description" content="Frequently asked questions about BroqInsta - learn about pricing, supported formats, download limits, and security.">
+    <link rel="canonical" href="<%= siteUrl %>/faq">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Service FAQ - BroqInsta Professional Support">
+    <meta property="og:description" content="Frequently asked questions about BroqInsta - learn about pricing, supported formats, download limits, and security.">
+    <meta property="og:image" content="<%= siteUrl %>/images/preview.png">
+    <meta property="og:url" content="<%= siteUrl %>/faq">
+    <meta property="og:site_name" content="BroqInsta">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Service FAQ - BroqInsta Professional Support">
+    <meta name="twitter:description" content="Frequently asked questions about BroqInsta - learn about pricing, supported formats, download limits, and security.">
+    <meta name="twitter:image" content="<%= siteUrl %>/images/preview.png">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-[#FAFBFC] min-h-screen flex flex-col">
+    <%- include('partials/header') %>
+
+    <main class="flex-grow container mx-auto px-4 py-12 max-w-3xl">
+        <nav class="mb-8 text-sm font-medium text-gray-400" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2" itemscope itemtype="https://schema.org/BreadcrumbList">
+                <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <a href="/" itemprop="item" class="hover:text-purple-600 transition-colors"><span itemprop="name">Home</span></a>
+                    <meta itemprop="position" content="1">
+                </li>
+                <li><span class="mx-2">/</span></li>
+                <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <span itemprop="name" class="text-gray-600">FAQ</span>
+                    <meta itemprop="position" content="2">
+                </li>
+            </ol>
+        </nav>
+
+        <div class="text-center mb-24 stagger-in">
+            <h1 class="text-64px font-black text-gray-900 mb-6">Expert Help.</h1>
+            <p class="text-xl text-gray-500 font-medium leading-relaxed">Everything you need to know about the world's
+                most reliable Instagram utility.</p>
+        </div>
+
+        <div class="space-y-6">
+            <div class="glass-card p-8 rounded-3xl cursor-pointer group animate-on-scroll">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-black text-gray-900">Is the service truly free?</h3>
+                    <span class="text-2xl text-purple-600 group-hover:translate-x-2 transition-transform">→</span>
+                </div>
+                <p
+                    class="mt-4 text-gray-500 font-medium leading-relaxed opacity-0 max-h-0 group-hover:opacity-100 group-hover:max-h-40 transition-all duration-500 overflow-hidden">
+                    Yes. BroqInsta is and will always be free for public media extraction. We believe in open access to
+                    digital content.
+                </p>
+            </div>
+
+            <div class="glass-card p-8 rounded-3xl cursor-pointer group animate-on-scroll">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-black text-gray-900">Do I need to authenticate?</h3>
+                    <span class="text-2xl text-purple-600 group-hover:translate-x-2 transition-transform">→</span>
+                </div>
+                <p
+                    class="mt-4 text-gray-500 font-medium leading-relaxed opacity-0 max-h-0 group-hover:opacity-100 group-hover:max-h-40 transition-all duration-500 overflow-hidden">
+                    No. Our system is designed to fetch public content without ever requiring your Instagram
+                    credentials. Your account remains 100% secure.
+                </p>
+            </div>
+
+            <div class="glass-card p-8 rounded-3xl cursor-pointer group animate-on-scroll">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-black text-gray-900">What is the maximum quality?</h3>
+                    <span class="text-2xl text-purple-600 group-hover:translate-x-2 transition-transform">→</span>
+                </div>
+                <p
+                    class="mt-4 text-gray-500 font-medium leading-relaxed opacity-0 max-h-0 group-hover:opacity-100 group-hover:max-h-40 transition-all duration-500 overflow-hidden">
+                    We always fetch the original source file. If the content was uploaded in 1080p, that is exactly what
+                    you will receive—bit-for-bit.
+                </p>
+            </div>
+
+            <div class="glass-card p-8 rounded-3xl cursor-pointer group animate-on-scroll">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-black text-gray-900">Supported media formats?</h3>
+                    <span class="text-2xl text-purple-600 group-hover:translate-x-2 transition-transform">→</span>
+                </div>
+                <p
+                    class="mt-4 text-gray-500 font-medium leading-relaxed opacity-0 max-h-0 group-hover:opacity-100 group-hover:max-h-40 transition-all duration-500 overflow-hidden">
+                    We support high-bitrate MP4 for videos/reels and original JPEG for images.
+                </p>
+            </div>
+
+            <div class="glass-card p-8 rounded-3xl cursor-pointer group animate-on-scroll">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-black text-gray-900">Are there download limits?</h3>
+                    <span class="text-2xl text-purple-600 group-hover:translate-x-2 transition-transform">→</span>
+                </div>
+                <p
+                    class="mt-4 text-gray-500 font-medium leading-relaxed opacity-0 max-h-0 group-hover:opacity-100 group-hover:max-h-40 transition-all duration-500 overflow-hidden">
+                    To ensure service stability for everyone, we implement a standard rate limit of 60 downloads per
+                    hour per session.
+                </p>
+            </div>
+        </div>
+
+        <div class="mt-32 text-center py-12 border-t border-gray-100 animate-on-scroll">
+            <p class="text-gray-400 font-bold mb-8 italic">Still have technical questions?</p>
+            <a href="/contact" class="btn-primary px-12 py-5 font-black text-lg">Contact Technical Support</a>
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>
+</body>
+
+</html>

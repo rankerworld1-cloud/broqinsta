@@ -35,7 +35,21 @@
 <body class="bg-[#FAFBFC] min-h-screen flex flex-col">
     <%- include('partials/header') %>
 
-    <main class="flex-grow container mx-auto px-4 py-24 max-w-4xl">
+    <main class="flex-grow container mx-auto px-4 py-12 max-w-4xl">
+        <nav class="mb-8 text-sm font-medium text-gray-400" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2" itemscope itemtype="https://schema.org/BreadcrumbList">
+                <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <a href="/" itemprop="item" class="hover:text-purple-600 transition-colors"><span itemprop="name">Home</span></a>
+                    <meta itemprop="position" content="1">
+                </li>
+                <li><span class="mx-2">/</span></li>
+                <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <span itemprop="name" class="text-gray-600 truncate max-w-xs"><%= page.title %></span>
+                    <meta itemprop="position" content="2">
+                </li>
+            </ol>
+        </nav>
+
         <article>
             <div class="mb-16 text-center">
                 <div class="flex items-center justify-center space-x-6 text-[10px] font-black uppercase tracking-widest text-gray-400 mb-8">

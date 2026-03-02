@@ -302,7 +302,9 @@ router.get('/seo-check/:type/:slug', (req, res) => {
         checks.push({ label: 'Clean SEO URL', pass: true, detail: `/${slug}` });
         checks.push({ label: 'Status Published', pass: item.status === 'published', detail: item.status });
         checks.push({ label: 'Meta Description', pass: !!(item.meta_description && item.meta_description.length > 10), detail: item.meta_description ? `${item.meta_description.length} chars` : 'Missing' });
-        checks.push({ label: 'Content Length', pass: (item.content || '').replace(/<[^>]*>/g, '').length >= 300, detail: `${(item.content || '').replace(/<[^>]*>/g, '').length} chars` });
+        const plainText = (item.content || '').replace(/<[^>]*>/g, '');
+        const wordCount = plainText.trim().split(/\s+/).filter(w => w.length > 0).length;
+        checks.push({ label: 'Word Count (min 600)', pass: wordCount >= 600, detail: `${wordCount} words` });
 
         const h1Count = ((item.content || '').match(/<h1/gi) || []).length;
         checks.push({ label: 'Single H1 Tag', pass: h1Count <= 1, detail: `${h1Count} found` });

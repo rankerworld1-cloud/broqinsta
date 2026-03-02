@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Mission - BroqInsta Professional</title>
+    <meta name="robots" content="index, follow">
+    <meta name="description" content="Learn about BroqInsta - our mission, vision, and the team behind the world's most reliable Instagram content downloader.">
+    <link rel="canonical" href="<%= siteUrl %>/about">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Our Mission - BroqInsta Professional">
+    <meta property="og:description" content="Learn about BroqInsta - our mission, vision, and the team behind the world's most reliable Instagram content downloader.">
+    <meta property="og:image" content="<%= siteUrl %>/images/preview.png">
+    <meta property="og:url" content="<%= siteUrl %>/about">
+    <meta property="og:site_name" content="BroqInsta">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Our Mission - BroqInsta Professional">
+    <meta name="twitter:description" content="Learn about BroqInsta - our mission, vision, and the team behind the world's most reliable Instagram content downloader.">
+    <meta name="twitter:image" content="<%= siteUrl %>/images/preview.png">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-[#FAFBFC] min-h-screen flex flex-col">
+    <div class="hero-background">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+    </div>
+
+    <%- include('partials/header') %>
+
+    <main class="flex-grow container mx-auto px-4 py-24 max-w-4xl">
+        <nav class="mb-8 text-sm font-medium text-gray-400" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2" itemscope itemtype="https://schema.org/BreadcrumbList">
+                <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <a href="/" itemprop="item" class="hover:text-purple-600 transition-colors"><span itemprop="name">Home</span></a>
+                    <meta itemprop="position" content="1">
+                </li>
+                <li><span class="mx-2">/</span></li>
+                <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <span itemprop="name" class="text-gray-600">About</span>
+                    <meta itemprop="position" content="2">
+                </li>
+            </ol>
+        </nav>
+
+        <div class="text-center mb-20 stagger-in">
+            <h1 class="text-64px font-black text-gray-900 mb-6">Built for Creators.</h1>
+            <p class="text-xl text-gray-500 leading-relaxed font-medium italic">
+                Simplifying digital media access with absolute precision and security.
+            </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-12">
+            <div class="glass-card p-12 rounded-[2.5rem] animate-on-scroll">
+                <div class="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center text-3xl mb-8">🎯</div>
+                <h2 class="text-2xl font-black text-gray-900 mb-4">The Vision</h2>
+                <p class="text-gray-500 leading-relaxed font-medium">
+                    We believe that your favorite memories and inspiring content shouldn't be locked behind an app
+                    interface. BroqInsta was built to bridge that gap, providing a seamless way to save what inspires
+                    you.
+                </p>
+            </div>
+            <div class="glass-card p-12 rounded-[2.5rem] animate-on-scroll" style="transition-delay: 0.2s;">
+                <div class="w-16 h-16 bg-pink-100 rounded-2xl flex items-center justify-center text-3xl mb-8">🛠️</div>
+                <h2 class="text-2xl font-black text-gray-900 mb-4">The Craft</h2>
+                <p class="text-gray-500 leading-relaxed font-medium">
+                    Our engineering team works around the clock to ensure BroqInsta stays ahead of platform changes. We
+                    prioritize privacy, security, and developer-grade reliability in every line of code.
+                </p>
+            </div>
+        </div>
+
+        <div class="mt-32 card-premium p-16 rounded-[4rem] text-center bg-white shadow-2xl animate-on-scroll">
+            <h2 class="text-4xl font-black text-gray-900 mb-12">By the Numbers.</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-12">
+                <div>
+                    <div class="text-4xl font-black text-purple-600 mb-2">10M+</div>
+                    <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Downloads</div>
+                </div>
+                <div>
+                    <div class="text-4xl font-black text-pink-600 mb-2">50k+</div>
+                    <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Daily Users</div>
+                </div>
+                <div>
+                    <div class="text-4xl font-black text-purple-600 mb-2">99.9%</div>
+                    <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Uptime</div>
+                </div>
+                <div>
+                    <div class="text-4xl font-black text-pink-600 mb-2">0</div>
+                    <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Data Logs</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>
+</body>
+
+</html>

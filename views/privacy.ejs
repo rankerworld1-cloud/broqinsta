@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - BroqInsta Zero-Log Ethics</title>
+    <meta name="robots" content="index, follow">
+    <meta name="description" content="BroqInsta privacy policy - zero-log protocol, data security, and cookie usage.">
+    <link rel="canonical" href="<%= siteUrl %>/privacy">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Privacy Policy - BroqInsta Zero-Log Ethics">
+    <meta property="og:description" content="BroqInsta privacy policy - zero-log protocol, data security, and cookie usage.">
+    <meta property="og:image" content="<%= siteUrl %>/images/preview.png">
+    <meta property="og:url" content="<%= siteUrl %>/privacy">
+    <meta property="og:site_name" content="BroqInsta">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Privacy Policy - BroqInsta Zero-Log Ethics">
+    <meta name="twitter:description" content="BroqInsta privacy policy - zero-log protocol, data security, and cookie usage.">
+    <meta name="twitter:image" content="<%= siteUrl %>/images/preview.png">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-[#FAFBFC] min-h-screen flex flex-col">
+    <%- include('partials/header') %>
+
+    <main class="flex-grow container mx-auto px-4 py-24 max-w-4xl">
+        <nav class="mb-8 text-sm font-medium text-gray-400" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2" itemscope itemtype="https://schema.org/BreadcrumbList">
+                <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <a href="/" itemprop="item" class="hover:text-purple-600 transition-colors"><span itemprop="name">Home</span></a>
+                    <meta itemprop="position" content="1">
+                </li>
+                <li><span class="mx-2">/</span></li>
+                <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <span itemprop="name" class="text-gray-600">Privacy Policy</span>
+                    <meta itemprop="position" content="2">
+                </li>
+            </ol>
+        </nav>
+
+        <div class="glass-card p-12 md:p-20 rounded-[3rem] animate-on-scroll">
+            <h1 class="text-5xl font-black text-gray-900 mb-12 italic">Privacy Ethics.</h1>
+            <div class="space-y-10 text-gray-600 font-medium leading-relaxed">
+                <section>
+                    <h2 class="text-xl font-black text-gray-900 mb-4 uppercase tracking-widest text-xs">01. Zero-Log
+                        Protocol</h2>
+                    <p>At BroqInsta, we implement a strict zero-log policy. We do not store, track, or monitor your
+                        media extraction requests. Your downloads are processed through ephemeral memory sessions that
+                        are cleared every 60 seconds.</p>
+                </section>
+                <section>
+                    <h2 class="text-xl font-black text-gray-900 mb-4 uppercase tracking-widest text-xs">02. Data
+                        Security</h2>
+                    <p>All communications between your device and our extraction nodes are encrypted using 256-bit SSL
+                        technology. We never share session data with third-party advertisers.</p>
+                </section>
+                <section>
+                    <h2 class="text-xl font-black text-gray-900 mb-4 uppercase tracking-widest text-xs">03. Cookie Usage
+                    </h2>
+                    <p>We use minimal, essential cookies only to manage download rate-limiting and ensure service
+                        stability. We do not use tracking pixels for user profiling.</p>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>
+</body>
+
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Support - BroqInsta Professional</title>
+    <meta name="robots" content="index, follow">
+    <meta name="description" content="Contact BroqInsta support team. Get help with downloads, report issues, or ask questions.">
+    <link rel="canonical" href="<%= siteUrl %>/contact">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Contact Support - BroqInsta Professional">
+    <meta property="og:description" content="Contact BroqInsta support team. Get help with downloads, report issues, or ask questions.">
+    <meta property="og:image" content="<%= siteUrl %>/images/preview.png">
+    <meta property="og:url" content="<%= siteUrl %>/contact">
+    <meta property="og:site_name" content="BroqInsta">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Contact Support - BroqInsta Professional">
+    <meta name="twitter:description" content="Contact BroqInsta support team. Get help with downloads, report issues, or ask questions.">
+    <meta name="twitter:image" content="<%= siteUrl %>/images/preview.png">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-[#FAFBFC] min-h-screen flex flex-col">
+    <div class="hero-background">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+    </div>
+
+    <%- include('partials/header') %>
+
+    <main class="flex-grow container mx-auto px-4 py-24">
+        <nav class="mb-8 text-sm font-medium text-gray-400" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2" itemscope itemtype="https://schema.org/BreadcrumbList">
+                <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <a href="/" itemprop="item" class="hover:text-purple-600 transition-colors"><span itemprop="name">Home</span></a>
+                    <meta itemprop="position" content="1">
+                </li>
+                <li><span class="mx-2">/</span></li>
+                <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <span itemprop="name" class="text-gray-600">Contact</span>
+                    <meta itemprop="position" content="2">
+                </li>
+            </ol>
+        </nav>
+
+        <div class="max-w-6xl mx-auto flex flex-col lg:flex-row gap-24 items-center">
+            <div class="lg:w-1/2 space-y-12 stagger-in">
+                <div class="space-y-6">
+                    <h1 class="text-64px font-black text-gray-900 leading-tight">
+                        We're here to <br>
+                        <span class="gradient-text">Help.</span>
+                    </h1>
+                    <p class="text-xl text-gray-500 font-medium leading-relaxed">
+                        Have questions about the platform or need technical assistance? Our team usually responds within
+                        24 hours.
+                    </p>
+                </div>
+
+                <div class="space-y-8">
+                    <div class="flex items-center space-x-6 p-6 glass-card border-none bg-white/40">
+                        <div class="w-16 h-16 bg-purple-100 text-3xl rounded-2xl flex items-center justify-center">📧
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Official Channel
+                            </p>
+                            <a href="mailto:contact@infiniterankers.com"
+                                class="text-xl font-black text-gray-900 hover:text-purple-600 transition-colors">contact@infiniterankers.com</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:w-1/2 w-full">
+                <div class="glass-card p-12 rounded-[3rem] shadow-2xl relative animate-on-scroll">
+                    <form id="contactForm" class="space-y-8">
+                        <div class="grid md:grid-cols-2 gap-8">
+                            <div class="space-y-3">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 px-2">First
+                                    Name</label>
+                                <input type="text" id="firstName" placeholder="John" required class="input-field">
+                            </div>
+                            <div class="space-y-3">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 px-2">Last
+                                    Name</label>
+                                <input type="text" id="lastName" placeholder="Doe" required class="input-field">
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 px-2">Email
+                                Address</label>
+                            <input type="email" id="email" placeholder="john@example.com" required class="input-field">
+                        </div>
+                        <div class="space-y-3">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 px-2">Your
+                                Message</label>
+                            <textarea id="message" rows="4" placeholder="Describe your inquiry..." required
+                                class="input-field resize-none"></textarea>
+                        </div>
+                        <button type="submit" id="submitBtn" class="btn-primary w-full py-6 text-xl">
+                            <span>Send Inquiry</span>
+                        </button>
+                    </form>
+                    <div id="formStatus" class="hidden mt-8 p-6 rounded-2xl text-center font-bold"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <script>
+        document.getElementById('contactForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const status = document.getElementById('formStatus');
+            const originalText = btn.innerHTML;
+
+            btn.disabled = true;
+            btn.innerHTML = '<span>Processing...</span>';
+            status.classList.add('hidden');
+
+            try {
+                const res = await fetch('/api/contact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        firstName: document.getElementById('firstName').value,
+                        lastName: document.getElementById('lastName').value,
+                        email: document.getElementById('email').value,
+                        message: document.getElementById('message').value
+                    })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    status.innerText = 'Message sent successfully. We will be in touch!';
+                    status.className = 'mt-8 p-6 rounded-2xl text-center font-bold bg-green-50 text-green-700 animate-on-scroll visible';
+                    status.classList.remove('hidden');
+                    document.getElementById('contactForm').reset();
+                } else {
+                    throw new Error(data.error || 'Failed to send message');
+                }
+            } catch (err) {
+                status.innerText = 'System error: ' + err.message;
+                status.className = 'mt-8 p-6 rounded-2xl text-center font-bold bg-red-50 text-red-700 animate-on-scroll visible';
+                status.classList.remove('hidden');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>

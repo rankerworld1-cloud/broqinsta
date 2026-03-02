@@ -62,6 +62,15 @@ function getLatestPosts() {
     try { return Posts.getPublished().slice(0, 5); } catch (e) { return []; }
 }
 
+app.use((req, res, next) => {
+    if (req.path !== '/' && req.path.endsWith('/')) {
+        const query = req.url.slice(req.path.length);
+        res.redirect(301, req.path.slice(0, -1) + query);
+    } else {
+        next();
+    }
+});
+
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(compression());
 app.use(cors());
@@ -178,8 +187,26 @@ app.use('/', sitemapRoutes);
 const staticPages = ['how-it-works', 'faq', 'contact', 'privacy', 'terms', 'about'];
 staticPages.forEach(pg => {
     app.get(`/${pg}`, (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', `${pg}.html`));
+        try {
+            const siteUrl = getSiteUrl(req);
+            const latestPosts = getLatestPosts();
+            res.render(pg, { siteUrl, latestPosts });
+        } catch (err) {
+            res.sendFile(path.join(__dirname, 'public', `${pg}.html`));
+        }
     });
+});
+
+app.get('/all-pages', (req, res) => {
+    try {
+        const siteUrl = getSiteUrl(req);
+        const latestPosts = getLatestPosts();
+        const posts = Posts.getPublished();
+        const pages = Pages.getPublished();
+        res.render('all-pages', { siteUrl, latestPosts, posts, pages });
+    } catch (err) {
+        res.status(500).send('Error loading page');
+    }
 });
 
 app.use('/api/admin', adminAuth, adminRoutes);
