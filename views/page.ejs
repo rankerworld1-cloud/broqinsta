@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= page.meta_title || page.title + ' - BroqInsta' %></title>
+    <meta name="robots" content="index, follow">
+    <meta name="description" content="<%= page.meta_description || '' %>">
+    <link rel="canonical" href="<%= siteUrl %>/<%= page.slug %>">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="<%= page.meta_title || page.title + ' - BroqInsta' %>">
+    <meta property="og:description" content="<%= page.meta_description || '' %>">
+    <meta property="og:image" content="<%= page.featured_image || siteUrl + '/images/preview.png' %>">
+    <meta property="og:url" content="<%= siteUrl %>/<%= page.slug %>">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<%= page.meta_title || page.title + ' - BroqInsta' %>">
+    <meta name="twitter:description" content="<%= page.meta_description || '' %>">
+    <meta name="twitter:image" content="<%= page.featured_image || siteUrl + '/images/preview.png' %>">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5905358857319449"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        #page-content p { margin-bottom: 2rem; }
+        #page-content h2 { font-size: 2rem; font-weight: 900; margin-top: 4rem; margin-bottom: 1.5rem; color: #111827; }
+        #page-content h3 { font-size: 1.5rem; font-weight: 800; margin-top: 3rem; margin-bottom: 1rem; color: #111827; }
+        #page-content ul, #page-content ol { margin-bottom: 2rem; padding-left: 1.5rem; }
+        #page-content li { margin-bottom: 0.5rem; }
+        #page-content img { border-radius: 2rem; margin: 3rem 0; box-shadow: var(--shadow-lg); width: 100%; }
+        #page-content a { color: #7C3AED; font-weight: 700; text-decoration: underline; }
+    </style>
+</head>
+
+<body class="bg-[#FAFBFC] min-h-screen flex flex-col">
+    <%- include('partials/header') %>
+
+    <main class="flex-grow container mx-auto px-4 py-24 max-w-4xl">
+        <article>
+            <div class="mb-16 text-center">
+                <div class="flex items-center justify-center space-x-6 text-[10px] font-black uppercase tracking-widest text-gray-400 mb-8">
+                    <span>Page</span>
+                    <span>|</span>
+                    <time><%= new Date(page.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }) %></time>
+                </div>
+                <h1 class="text-5xl md:text-6xl font-black text-gray-900 leading-tight mb-12"><%= page.title %></h1>
+                <% if (page.meta_description) { %>
+                <div class="text-xl text-gray-500 font-medium leading-relaxed max-w-2xl mx-auto italic">
+                    <%= page.meta_description %>
+                </div>
+                <% } %>
+            </div>
+
+            <div class="glass-card p-12 md:p-20 rounded-[4rem] bg-white shadow-2xl">
+                <div id="page-content" class="text-lg text-gray-600 font-medium leading-[1.8] tracking-tight">
+                    <%- page.content %>
+                </div>
+            </div>
+        </article>
+
+        <div class="mt-32 text-center">
+            <div class="inline-block p-12 glass-card bg-gray-900 text-white border-none rounded-[3rem]">
+                <h3 class="text-2xl font-black mb-6">Need more media tools?</h3>
+                <p class="text-gray-400 mb-8 font-medium">Power your workflow with the world's most elegant downloader.</p>
+                <a href="/" class="btn-primary px-12 py-5 font-black">Try BroqInsta Now</a>
+            </div>
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <script>
+        async function injectAds() {
+            try {
+                const res = await fetch('/api/ads');
+                const data = await res.json();
+                if (!data.success) return;
+                const contentArea = document.getElementById('page-content');
+                data.ads.forEach(ad => {
+                    const adDiv = document.createElement('div');
+                    adDiv.className = 'ad-container my-12 text-center';
+                    adDiv.innerHTML = ad.code;
+                    if (ad.position === 'before_content') contentArea.prepend(adDiv);
+                    else if (ad.position === 'after_content') contentArea.appendChild(adDiv);
+                    else if (ad.position === 'middle_content') {
+                        const paras = contentArea.querySelectorAll('p');
+                        const target = paras[ad.paragraph_number - 1] || paras[paras.length - 1];
+                        if (target) target.after(adDiv);
+                    } else if (ad.position === 'footer') document.querySelector('footer').prepend(adDiv);
+                    adDiv.querySelectorAll('script').forEach(oldScript => {
+                        const newScript = document.createElement('script');
+                        Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                        oldScript.parentNode.replaceChild(newScript, oldScript);
+                    });
+                });
+            } catch (e) {}
+        }
+        injectAds();
+    </script>
+</body>
+
+</html>

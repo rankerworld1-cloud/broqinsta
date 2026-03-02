@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= post.meta_title || post.title + ' - BroqInsta' %></title>
+    <meta name="robots" content="index, follow">
+    <meta name="description" content="<%= post.meta_description || post.excerpt || '' %>">
+    <link rel="canonical" href="<%= siteUrl %>/<%= post.slug %>">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="<%= post.meta_title || post.title + ' - BroqInsta' %>">
+    <meta property="og:description" content="<%= post.meta_description || post.excerpt || '' %>">
+    <meta property="og:image" content="<%= post.featured_image || siteUrl + '/images/preview.png' %>">
+    <meta property="og:url" content="<%= siteUrl %>/<%= post.slug %>">
+    <meta property="og:site_name" content="BroqInsta">
+    <meta property="article:published_time" content="<%= new Date(post.created_at).toISOString() %>">
+    <meta property="article:modified_time" content="<%= new Date(post.updated_at).toISOString() %>">
+    <% if (post.category) { %><meta property="article:section" content="<%= post.category %>"><% } %>
+    <% if (post.tags) { post.tags.split(',').forEach(function(tag) { %><meta property="article:tag" content="<%= tag.trim() %>"><% }); } %>
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<%= post.meta_title || post.title + ' - BroqInsta' %>">
+    <meta name="twitter:description" content="<%= post.meta_description || post.excerpt || '' %>">
+    <meta name="twitter:image" content="<%= post.featured_image || siteUrl + '/images/preview.png' %>">
+    <link rel="alternate" type="application/rss+xml" title="BroqInsta Blog RSS" href="/rss.xml">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5905358857319449"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        #post-content p { margin-bottom: 2rem; }
+        #post-content h2 { font-size: 2rem; font-weight: 900; margin-top: 4rem; margin-bottom: 1.5rem; color: #111827; }
+        #post-content h3 { font-size: 1.5rem; font-weight: 800; margin-top: 3rem; margin-bottom: 1rem; color: #111827; }
+        #post-content ul, #post-content ol { margin-bottom: 2rem; padding-left: 1.5rem; }
+        #post-content li { margin-bottom: 0.5rem; }
+        #post-content img { border-radius: 2rem; margin: 3rem 0; box-shadow: var(--shadow-lg); width: 100%; }
+        #post-content a { color: #7C3AED; font-weight: 700; text-decoration: underline; }
+    </style>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "<%= post.title.replace(/"/g, '\\"') %>",
+        "description": "<%= (post.meta_description || post.excerpt || '').replace(/"/g, '\\"') %>",
+        "image": "<%= post.featured_image || siteUrl + '/images/preview.png' %>",
+        "datePublished": "<%= new Date(post.created_at).toISOString() %>",
+        "dateModified": "<%= new Date(post.updated_at).toISOString() %>",
+        "author": { "@type": "Organization", "name": "BroqInsta" },
+        "publisher": { "@type": "Organization", "name": "BroqInsta", "logo": { "@type": "ImageObject", "url": "<%= siteUrl %>/images/logo.png" } },
+        "mainEntityOfPage": { "@type": "WebPage", "@id": "<%= siteUrl %>/<%= post.slug %>" }
+    }
+    </script>
+</head>
+
+<body class="bg-[#FAFBFC] min-h-screen flex flex-col">
+    <%- include('partials/header') %>
+
+    <main class="flex-grow container mx-auto px-4 py-12 max-w-4xl">
+        <nav class="mb-8 text-sm font-medium text-gray-400" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2" itemscope itemtype="https://schema.org/BreadcrumbList">
+                <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <a href="/" itemprop="item" class="hover:text-purple-600 transition-colors"><span itemprop="name">Home</span></a>
+                    <meta itemprop="position" content="1">
+                </li>
+                <li><span class="mx-2">/</span></li>
+                <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <a href="/blog" itemprop="item" class="hover:text-purple-600 transition-colors"><span itemprop="name">Blog</span></a>
+                    <meta itemprop="position" content="2">
+                </li>
+                <li><span class="mx-2">/</span></li>
+                <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <span itemprop="name" class="text-gray-600 truncate max-w-xs"><%= post.title %></span>
+                    <meta itemprop="position" content="3">
+                </li>
+            </ol>
+        </nav>
+
+        <article itemscope itemtype="https://schema.org/BlogPosting">
+            <div class="mb-16 text-center">
+                <div class="flex items-center justify-center space-x-6 text-[10px] font-black uppercase tracking-widest text-gray-400 mb-8">
+                    <span class="px-3 py-1 bg-purple-50 text-purple-600 rounded-full"><%= post.category || 'Article' %></span>
+                    <span>|</span>
+                    <time datetime="<%= new Date(post.created_at).toISOString() %>" itemprop="datePublished"><%= new Date(post.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }) %></time>
+                </div>
+                <h1 itemprop="headline" class="text-5xl md:text-6xl font-black text-gray-900 leading-tight mb-12"><%= post.title %></h1>
+                <% if (post.excerpt) { %>
+                <div itemprop="description" class="text-xl text-gray-500 font-medium leading-relaxed max-w-2xl mx-auto italic">
+                    <%= post.excerpt %>
+                </div>
+                <% } %>
+            </div>
+
+            <% if (post.featured_image) { %>
+            <div class="mb-12">
+                <img src="<%= post.featured_image %>" alt="<%= post.title %>" class="w-full rounded-[2rem] shadow-lg" itemprop="image" loading="lazy">
+            </div>
+            <% } %>
+
+            <div class="glass-card p-12 md:p-20 rounded-[4rem] bg-white shadow-2xl">
+                <div id="post-content" itemprop="articleBody" class="text-lg text-gray-600 font-medium leading-[1.8] tracking-tight">
+                    <%- post.content %>
+                </div>
+
+                <% if (post.tags) { %>
+                <div class="mt-12 pt-8 border-t border-gray-100">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4">Tags</p>
+                    <div class="flex flex-wrap gap-2">
+                        <% post.tags.split(',').forEach(function(tag) { %>
+                            <span class="px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-xs font-bold"><%= tag.trim() %></span>
+                        <% }); %>
+                    </div>
+                </div>
+                <% } %>
+            </div>
+        </article>
+
+        <% if (related && related.length > 0) { %>
+        <section class="mt-24">
+            <h2 class="text-3xl font-black text-gray-900 mb-10">Related Posts</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <% related.forEach(function(r) { %>
+                <a href="/<%= r.slug %>" class="glass-card p-8 flex flex-col group hover:shadow-lg transition-all">
+                    <span class="text-[9px] font-black uppercase tracking-[0.2em] text-purple-600 px-3 py-1 bg-purple-50 rounded-full inline-block mb-4 w-fit"><%= r.category || 'Article' %></span>
+                    <h3 class="text-xl font-black text-gray-900 group-hover:text-purple-600 transition-colors line-clamp-2 mb-4"><%= r.title %></h3>
+                    <p class="text-sm text-gray-500 line-clamp-2 flex-grow"><%= r.excerpt || '' %></p>
+                    <div class="pt-6 mt-auto text-xs font-black uppercase tracking-widest text-gray-900 group-hover:translate-x-2 transition-transform">
+                        Read More <span class="ml-1">&rarr;</span>
+                    </div>
+                </a>
+                <% }); %>
+            </div>
+        </section>
+        <% } %>
+
+        <div class="mt-24 text-center">
+            <div class="inline-block p-12 glass-card bg-gray-900 text-white border-none rounded-[3rem]">
+                <h3 class="text-2xl font-black mb-6">Download Instagram Content</h3>
+                <p class="text-gray-400 mb-8 font-medium">Save reels, videos, and photos in HD quality instantly.</p>
+                <a href="/" class="btn-primary px-12 py-5 font-black">Try BroqInsta Now</a>
+            </div>
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <script>
+        async function injectAds() {
+            try {
+                const res = await fetch('/api/ads');
+                const data = await res.json();
+                if (!data.success) return;
+                const contentArea = document.getElementById('post-content');
+                data.ads.forEach(ad => {
+                    const adDiv = document.createElement('div');
+                    adDiv.className = 'ad-container my-12 text-center';
+                    adDiv.innerHTML = ad.code;
+                    if (ad.position === 'before_content') contentArea.prepend(adDiv);
+                    else if (ad.position === 'after_content') contentArea.appendChild(adDiv);
+                    else if (ad.position === 'middle_content') {
+                        const paras = contentArea.querySelectorAll('p');
+                        const target = paras[ad.paragraph_number - 1] || paras[paras.length - 1];
+                        if (target) target.after(adDiv);
+                    } else if (ad.position === 'footer') document.querySelector('footer').prepend(adDiv);
+                    adDiv.querySelectorAll('script').forEach(oldScript => {
+                        const newScript = document.createElement('script');
+                        Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                        oldScript.parentNode.replaceChild(newScript, oldScript);
+                    });
+                });
+            } catch (e) {}
+        }
+        injectAds();
+    </script>
+</body>
+
+</html>

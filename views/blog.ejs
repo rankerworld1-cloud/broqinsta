@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - BroqInsta Insights & Guides</title>
+    <meta name="robots" content="index, follow">
+    <meta name="description" content="Professional guides, technical updates, and digital strategy for Instagram content creators. Learn how to download and save Instagram content.">
+    <link rel="canonical" href="<%= siteUrl %>/blog">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Blog - BroqInsta Insights & Guides">
+    <meta property="og:description" content="Professional guides, technical updates, and digital strategy for Instagram content creators.">
+    <meta property="og:image" content="<%= siteUrl %>/images/preview.png">
+    <meta property="og:url" content="<%= siteUrl %>/blog">
+    <link rel="alternate" type="application/rss+xml" title="BroqInsta Blog RSS" href="/rss.xml">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-[#FAFBFC] min-h-screen flex flex-col">
+    <div class="hero-background">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+    </div>
+
+    <%- include('partials/header') %>
+
+    <main class="flex-grow container mx-auto px-4 py-24">
+        <div class="text-center mb-24 stagger-in">
+            <h1 class="text-64px font-black text-gray-900 mb-6 italic">Insights.</h1>
+            <p class="text-xl text-gray-500 max-w-2xl mx-auto font-medium">Professional guides, technical updates, and
+                digital strategy for modern creators.</p>
+        </div>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+            <% if (posts.length === 0) { %>
+                <div class="col-span-full py-24 text-center text-gray-300 font-black italic text-2xl">Publication sequence empty. Check back soon.</div>
+            <% } else { %>
+                <% posts.forEach(function(post) { %>
+                <a href="/<%= post.slug %>" class="glass-card p-10 flex flex-col group animate-on-scroll">
+                    <div class="flex-grow space-y-6">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[9px] font-black uppercase tracking-[0.2em] text-purple-600 px-3 py-1 bg-purple-50 rounded-full"><%= post.category || 'Article' %></span>
+                            <span class="text-[9px] font-bold text-gray-400 uppercase"><%= new Date(post.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) %></span>
+                        </div>
+                        <h2 class="text-3xl font-black text-gray-900 group-hover:text-purple-600 transition-colors line-clamp-2 leading-tight"><%= post.title %></h2>
+                        <p class="text-gray-500 font-medium line-clamp-3 leading-relaxed"><%= post.excerpt || '' %></p>
+                    </div>
+                    <div class="pt-8 mt-8 border-t border-gray-50 flex items-center text-xs font-black uppercase tracking-widest text-gray-900 group-hover:translate-x-2 transition-transform">
+                        Read More <span class="ml-2">&rarr;</span>
+                    </div>
+                </a>
+                <% }); %>
+            <% } %>
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <script>
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => entry.isIntersecting && entry.target.classList.add('visible'));
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+    </script>
+</body>
+
+</html>

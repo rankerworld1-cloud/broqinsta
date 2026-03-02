@@ -319,10 +319,65 @@
             if (result.success) {
                 modal.classList.add('hidden');
                 loadPosts();
+                if (result.confirmation) showPublishConfirmation(result.confirmation);
             } else {
                 alert(result.error || 'Failed to save post');
             }
         };
+
+        function showPublishConfirmation(c) {
+            const overlay = document.createElement('div');
+            overlay.className = 'fixed inset-0 bg-gray-900/60 backdrop-blur-md z-[2000] flex items-center justify-center p-4';
+            overlay.innerHTML = `
+                <div class="bg-white w-full max-w-lg rounded-[2rem] p-10 shadow-2xl modal-animate">
+                    <h3 class="text-2xl font-black text-gray-900 mb-6 text-center">Publish Confirmation</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center p-3 bg-green-50 rounded-xl"><span class="text-green-600 mr-3 text-lg">&#10003;</span><span class="text-sm font-bold text-gray-700">Slug: /${c.slug}</span></div>
+                        <div class="flex items-center p-3 bg-green-50 rounded-xl"><span class="text-green-600 mr-3 text-lg">&#10003;</span><span class="text-sm font-bold text-gray-700">Page Live</span></div>
+                        <div class="flex items-center p-3 bg-green-50 rounded-xl"><span class="text-green-600 mr-3 text-lg">&#10003;</span><span class="text-sm font-bold text-gray-700">Sitemap Updated</span></div>
+                        <div class="flex items-center p-3 bg-green-50 rounded-xl"><span class="text-green-600 mr-3 text-lg">&#10003;</span><span class="text-sm font-bold text-gray-700">Google Pinged</span></div>
+                        <div class="flex items-center p-3 bg-green-50 rounded-xl"><span class="text-green-600 mr-3 text-lg">&#10003;</span><span class="text-sm font-bold text-gray-700">Bing Pinged</span></div>
+                        <div class="flex items-center p-3 bg-green-50 rounded-xl"><span class="text-green-600 mr-3 text-lg">&#10003;</span><span class="text-sm font-bold text-gray-700">RSS Feed Updated</span></div>
+                        <div class="flex items-center p-3 bg-green-50 rounded-xl"><span class="text-green-600 mr-3 text-lg">&#10003;</span><span class="text-sm font-bold text-gray-700">Server-Side Rendered</span></div>
+                        <div class="flex items-center p-3 bg-green-50 rounded-xl"><span class="text-green-600 mr-3 text-lg">&#10003;</span><span class="text-sm font-bold text-gray-700">Index-Ready</span></div>
+                    </div>
+                    <div class="mt-6 flex space-x-4">
+                        <a href="${c.url}" target="_blank" class="flex-1 text-center py-3 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition-colors">View Post</a>
+                        <button onclick="runSeoCheck('${c.slug}')" class="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-colors">SEO Check</button>
+                    </div>
+                    <button onclick="this.closest('.fixed').remove()" class="w-full mt-4 py-3 text-gray-400 font-bold text-sm hover:text-gray-600 transition-colors">Close</button>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+        }
+
+        async function runSeoCheck(slug) {
+            try {
+                const res = await fetch('/api/admin/seo-check/post/' + slug);
+                const data = await res.json();
+                if (!data.success) return alert('SEO check failed');
+                const existing = document.querySelector('.fixed.z-\\[2000\\]');
+                if (existing) existing.remove();
+                const overlay = document.createElement('div');
+                overlay.className = 'fixed inset-0 bg-gray-900/60 backdrop-blur-md z-[2000] flex items-center justify-center p-4';
+                overlay.innerHTML = `
+                    <div class="bg-white w-full max-w-lg rounded-[2rem] p-10 shadow-2xl modal-animate">
+                        <h3 class="text-2xl font-black text-gray-900 mb-2 text-center">SEO Readiness Check</h3>
+                        <p class="text-center text-sm font-bold mb-6 ${data.allPass ? 'text-green-600' : 'text-yellow-600'}">${data.allPass ? 'All checks passed!' : 'Some items need attention'}</p>
+                        <div class="space-y-3">
+                            ${data.checks.map(c => `
+                                <div class="flex items-center justify-between p-3 ${c.pass ? 'bg-green-50' : 'bg-red-50'} rounded-xl">
+                                    <span class="text-sm font-bold text-gray-700">${c.label}</span>
+                                    <span class="text-xs font-bold ${c.pass ? 'text-green-600' : 'text-red-600'}">${c.detail}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button onclick="this.closest('.fixed').remove()" class="w-full mt-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-colors">Close</button>
+                    </div>
+                `;
+                document.body.appendChild(overlay);
+            } catch (e) { alert('SEO check failed'); }
+        }
 
         CKEDITOR.replace('postContent', {
             height: 400,

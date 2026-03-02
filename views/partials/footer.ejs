@@ -1,0 +1,52 @@
+<footer class="py-12 border-t border-gray-100 bg-white/50 backdrop-blur-md">
+    <div class="container mx-auto px-4">
+        <div class="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+                <h4 class="text-sm font-black text-gray-900 mb-4">BroqInsta</h4>
+                <p class="text-xs text-gray-400">Professional Instagram content downloader.</p>
+            </div>
+            <div>
+                <h4 class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4">Pages</h4>
+                <ul class="space-y-2 text-xs text-gray-500">
+                    <li><a href="/" class="hover:text-purple-600 transition-colors">Home</a></li>
+                    <li><a href="/about" class="hover:text-purple-600 transition-colors">About</a></li>
+                    <li><a href="/how-it-works" class="hover:text-purple-600 transition-colors">How It Works</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4">Resources</h4>
+                <ul class="space-y-2 text-xs text-gray-500">
+                    <li><a href="/blog" class="hover:text-purple-600 transition-colors">Blog</a></li>
+                    <li><a href="/faq" class="hover:text-purple-600 transition-colors">FAQ</a></li>
+                    <li><a href="/contact" class="hover:text-purple-600 transition-colors">Contact</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4">Latest Posts</h4>
+                <ul class="space-y-2 text-xs text-gray-500">
+                    <% if (typeof latestPosts !== 'undefined' && latestPosts && latestPosts.length > 0) { %>
+                        <% latestPosts.slice(0, 3).forEach(function(p) { %>
+                            <li><a href="/<%= p.slug %>" class="hover:text-purple-600 transition-colors"><%= p.title.length > 30 ? p.title.substring(0, 30) + '...' : p.title %></a></li>
+                        <% }); %>
+                    <% } else { %>
+                        <li><a href="/blog" class="hover:text-purple-600 transition-colors">View All Posts</a></li>
+                    <% } %>
+                </ul>
+            </div>
+        </div>
+        <div class="grid md:grid-cols-2 gap-8 mb-8">
+            <div>
+                <h4 class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4">Legal</h4>
+                <ul class="flex space-x-6 text-xs text-gray-500">
+                    <li><a href="/privacy" class="hover:text-purple-600 transition-colors">Privacy Policy</a></li>
+                    <li><a href="/terms" class="hover:text-purple-600 transition-colors">Terms of Service</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="text-center pt-8 border-t border-gray-100">
+            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                &copy; 2026 BroqInsta | Powered by <a href="https://infiniterankers.com" target="_blank" class="text-gray-900">Infinite Rankers</a>
+            </p>
+        </div>
+    </div>
+</footer>

@@ -7,24 +7,19 @@ const compression = require('compression');
 const cors = require('cors');
 const fs = require('fs');
 
-// Internal Imports
 const { initSchema, Settings, Posts, Pages } = require('./models/database');
 const securityFilter = require('./middleware/securityFilter');
 
-// --- AUTO INITIALIZE ---
 console.log('🚀 Starting BroqInsta Server...');
 console.log('📦 Checking database...');
 try {
     initSchema();
     console.log('✅ Database initialized');
-
-    // SECURITY: Auto-create admin from environment variables
     initializeDefaultAdmin();
 } catch (err) {
     console.error('❌ Database initialization failed:', err.message);
 }
 
-// SECURITY: Auto-create admin if none exists
 async function initializeDefaultAdmin() {
     try {
         const { Admin } = require('./models/database');
@@ -43,9 +38,6 @@ async function initializeDefaultAdmin() {
             console.log('📧 Email:', email);
             console.log('🔑 Password: [SET FROM ENVIRONMENT]');
             console.log('⚠️  ═══════════════════════════════════════════');
-            console.log('⚠️  CHANGE PASSWORD IMMEDIATELY AFTER LOGIN!');
-            console.log('⚠️  Login at: https://yourdomain.com/admin/login.html');
-            console.log('⚠️  ═══════════════════════════════════════════');
             console.log('');
         } else {
             console.log('✅ Admin account exists');
@@ -58,38 +50,39 @@ async function initializeDefaultAdmin() {
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Proper proxy trust for Hostinger/Shared Hosting
 app.set('trust proxy', 1);
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
-// --- MIDDLEWARE ---
-app.use(helmet({
-    contentSecurityPolicy: false,
-}));
+function getSiteUrl(req) {
+    return Settings.get('site_url') || `${req.protocol}://${req.get('host')}`;
+}
+
+function getLatestPosts() {
+    try { return Posts.getPublished().slice(0, 5); } catch (e) { return []; }
+}
+
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(compression());
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Session Store (Fixed Login Loop for Hostinger)
-const sessionStore = new SQLiteStore({
-    db: 'sessions.db',
-    dir: './database'
-});
+const sessionStore = new SQLiteStore({ db: 'sessions.db', dir: './database' });
 
 app.use(session({
     store: sessionStore,
     secret: Settings.get('session_secret') || 'broqinsta_production_secret',
     resave: false,
     saveUninitialized: false,
-    name: 'broqinsta.sid', // Custom cookie name
+    name: 'broqinsta.sid',
     cookie: {
-        secure: false, // Set to true only if using HTTPS + trust proxy
+        secure: false,
         httpOnly: true,
-        maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+        maxAge: 30 * 24 * 60 * 60 * 1000
     }
 }));
 
-// --- ROUTES ---
 const setupRoutes = require('./routes/setup');
 const apiRoutes = require('./routes/api');
 const authRoutes = require('./routes/auth');
@@ -98,7 +91,6 @@ const sitemapRoutes = require('./routes/sitemap');
 const adminAuth = require('./middleware/adminAuth');
 const setupCheck = require('./middleware/setupCheck');
 
-// --- PUBLIC BLOG API ---
 app.get('/api/blog/posts', (req, res) => {
     try {
         const posts = Posts.getAll();
@@ -121,11 +113,10 @@ app.get('/api/blog/posts/:slug', (req, res) => {
     }
 });
 
-// --- PUBLIC PAGES API ---
 app.get('/api/pages', (req, res) => {
     try {
-        const pages = Pages.getAll();
-        res.json({ success: true, pages });
+        const allPages = Pages.getAll();
+        res.json({ success: true, pages: allPages });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
@@ -141,86 +132,88 @@ app.get('/api/pages/:slug', (req, res) => {
     }
 });
 
-// --- PUBLIC BLOG ROUTES (SEO) ---
 app.get('/blog/:slug', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'blog-post.html'));
+    res.redirect(301, '/' + req.params.slug);
 });
 
-// --- PUBLIC PAGES ROUTES (SEO) ---
 app.get('/page/:slug', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'page.html'));
+    res.redirect(301, '/' + req.params.slug);
 });
 
-// 1. Setup Wizard (Public)
+app.get('/blog', (req, res) => {
+    try {
+        const posts = Posts.getPublished();
+        const siteUrl = getSiteUrl(req);
+        const latestPosts = posts.slice(0, 5);
+        res.render('blog', { posts, siteUrl, latestPosts });
+    } catch (err) {
+        res.sendFile(path.join(__dirname, 'public', 'blog.html'));
+    }
+});
+
 app.use('/api/setup', setupRoutes);
 app.get('/setup', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'setup.html'));
 });
 
-// 2. Setup Check Middleware
 app.use(setupCheck);
 
-// 3. Admin Login (Public - No Auth Required)
 app.get('/admin/login.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin', 'login.html'));
 });
 
-// 3b. Admin Files Protection
 app.use('/admin', adminAuth, express.static(path.join(__dirname, 'public', 'admin')));
 
-// 4. SECURITY FILTER - Block access to sensitive files
 app.use(securityFilter);
 
-// 5. General Static Files with Caching (ONLY public folder)
 app.use(express.static(path.join(__dirname, 'public'), {
     maxAge: '1d',
     etag: true
 }));
 
-// 5. API & AUTH
 app.use('/api', apiRoutes);
 app.use('/api/auth', authRoutes);
-app.use('/', sitemapRoutes); // Sitemap routes
+app.use('/', sitemapRoutes);
 
-// 6. Public Pages (Clean URLs)
-const pages = ['how-it-works', 'blog', 'faq', 'contact', 'privacy', 'terms', 'about'];
-pages.forEach(page => {
-    app.get(`/${page}`, (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', `${page}.html`));
+const staticPages = ['how-it-works', 'faq', 'contact', 'privacy', 'terms', 'about'];
+staticPages.forEach(pg => {
+    app.get(`/${pg}`, (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', `${pg}.html`));
     });
 });
 
-// 7. Admin Panel API (Protected)
 app.use('/api/admin', adminAuth, adminRoutes);
 
-// Admin Redirect
 app.get('/admin', adminAuth, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin', 'dashboard.html'));
 });
 
-// WordPress-Style Dynamic Routing (Catch-all)
 app.get('/:slug', (req, res, next) => {
     const { slug } = req.params;
 
-    // Skip if it looks like a file (has dot) or is a reserved route
-    if (slug.includes('.') || pages.includes(slug) || slug === 'admin' || slug === 'setup') {
+    if (slug.includes('.') || staticPages.includes(slug) || slug === 'admin' || slug === 'setup' || slug === 'blog') {
         return next();
     }
 
     try {
-        // First check if it's a blog post
         const post = Posts.getBySlug(slug);
         if (post) {
-            return res.sendFile(path.join(__dirname, 'public', 'blog-post.html'));
+            if (post.status !== 'published') return next();
+            const related = Posts.getRelated(post.id, post.category || 'General', 3);
+            const siteUrl = getSiteUrl(req);
+            const latestPosts = getLatestPosts();
+            return res.render('blog-post', { post, related, siteUrl, latestPosts });
         }
 
-        // Then check if it's a page
         const page = Pages.getBySlug(slug);
         if (page) {
-            return res.sendFile(path.join(__dirname, 'public', 'page.html'));
+            if (page.status !== 'published') return next();
+            const siteUrl = getSiteUrl(req);
+            const latestPosts = getLatestPosts();
+            return res.render('page', { page, siteUrl, latestPosts });
         }
 
-        next(); // Not found in DB, move to default
+        next();
     } catch (err) {
         next();
     }
@@ -230,7 +223,6 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// --- START ---
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🌐 Server running on port ${PORT}`);
     const completed = Settings.get('setup_complete') === '1';

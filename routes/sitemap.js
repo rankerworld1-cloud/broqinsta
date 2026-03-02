@@ -33,7 +33,7 @@ router.get('/sitemap.xml', (req, res) => {
 
         posts.forEach(post => {
             sitemap += `  <url>\n`;
-            sitemap += `    <loc>${siteUrl}/blog/${post.slug}</loc>\n`;
+            sitemap += `    <loc>${siteUrl}/${post.slug}</loc>\n`;
             sitemap += `    <changefreq>weekly</changefreq>\n`;
             sitemap += `    <priority>0.9</priority>\n`;
             sitemap += `    <lastmod>${new Date(post.updated_at).toISOString()}</lastmod>\n`;
@@ -71,7 +71,7 @@ router.get('/sitemap.txt', (req, res) => {
 
         let sitemap = '';
         staticUrls.forEach(url => { sitemap += `${siteUrl}${url}\n`; });
-        posts.forEach(post => { sitemap += `${siteUrl}/blog/${post.slug}\n`; });
+        posts.forEach(post => { sitemap += `${siteUrl}/${post.slug}\n`; });
         pages.forEach(page => { sitemap += `${siteUrl}/${page.slug}\n`; });
 
         res.header('Content-Type', 'text/plain');
@@ -114,8 +114,8 @@ router.get('/rss.xml', (req, res) => {
         posts.forEach(post => {
             rss += `  <item>\n`;
             rss += `    <title><![CDATA[${post.title}]]></title>\n`;
-            rss += `    <link>${siteUrl}/blog/${post.slug}</link>\n`;
-            rss += `    <guid>${siteUrl}/blog/${post.slug}</guid>\n`;
+            rss += `    <link>${siteUrl}/${post.slug}</link>\n`;
+            rss += `    <guid>${siteUrl}/${post.slug}</guid>\n`;
             rss += `    <description><![CDATA[${post.excerpt || post.meta_description || ''}]]></description>\n`;
             rss += `    <pubDate>${new Date(post.created_at).toUTCString()}</pubDate>\n`;
             if (post.category) rss += `    <category>${post.category}</category>\n`;
