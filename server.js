@@ -204,14 +204,14 @@ app.get('/admin/', adminAuth, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin', 'dashboard.html'));
 });
 
-app.use('/admin', adminAuth, express.static(path.join(__dirname, 'public', 'admin'), { redirect: false }));
+app.use('/css', express.static(path.join(__dirname, 'public', 'css'), { maxAge: '7d' }));
+app.use('/js', express.static(path.join(__dirname, 'public', 'js'), { maxAge: '7d' }));
+app.use('/images', express.static(path.join(__dirname, 'public', 'images'), { maxAge: '7d' }));
+app.use('/fonts', express.static(path.join(__dirname, 'public', 'fonts'), { maxAge: '7d' }));
 
 app.use(securityFilter);
 
-app.use(express.static(path.join(__dirname, 'public'), {
-    maxAge: '1d',
-    etag: true
-}));
+app.use('/admin', adminAuth, express.static(path.join(__dirname, 'public', 'admin'), { redirect: false }));
 
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
@@ -285,8 +285,19 @@ app.get('*', (req, res) => {
     }
 });
 
-    app.listen(PORT, '0.0.0.0', () => {
+    const server = app.listen(PORT, '0.0.0.0', () => {
         console.log(`🌐 Server running on port ${PORT}`);
+    });
+
+    server.on('error', (err) => {
+        if (err.code === 'EADDRINUSE') {
+            console.error(`❌ Port ${PORT} is already in use. Trying port ${PORT + 1}...`);
+            app.listen(PORT + 1, '0.0.0.0', () => {
+                console.log(`🌐 Server running on port ${PORT + 1}`);
+            });
+        } else {
+            throw err;
+        }
     });
 }
 
