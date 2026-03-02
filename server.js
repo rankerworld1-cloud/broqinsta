@@ -1,15 +1,44 @@
 const express = require('express');
 const session = require('express-session');
-const SQLiteStore = require('connect-sqlite3')(session);
 const path = require('path');
 const helmet = require('helmet');
 const compression = require('compression');
 const cors = require('cors');
 const fs = require('fs');
 
-const { initSchema, Settings, Posts, Pages } = require('./models/database');
-const securityFilter = require('./middleware/securityFilter');
-const { globalLimiter, loginLimiter, apiLimiter } = require('./middleware/rateLimiter');
+let Settings, Posts, Pages, initSchema;
+try {
+    const db = require('./models/database');
+    Settings = db.Settings;
+    Posts = db.Posts;
+    Pages = db.Pages;
+    initSchema = db.initSchema;
+} catch (err) {
+    console.error('❌ Database module load failed:', err.message);
+    process.exit(1);
+}
+
+let securityFilter;
+try {
+    securityFilter = require('./middleware/securityFilter');
+} catch (err) {
+    console.error('⚠️ Security filter failed to load:', err.message);
+    securityFilter = (req, res, next) => next();
+}
+
+let globalLimiter, loginLimiter, apiLimiter;
+try {
+    const rl = require('./middleware/rateLimiter');
+    globalLimiter = rl.globalLimiter;
+    loginLimiter = rl.loginLimiter;
+    apiLimiter = rl.apiLimiter;
+} catch (err) {
+    console.error('⚠️ Rate limiter failed to load:', err.message);
+    const passThrough = (req, res, next) => next();
+    globalLimiter = passThrough;
+    loginLimiter = passThrough;
+    apiLimiter = passThrough;
+}
 
 console.log('🚀 Starting BroqInsta Server...');
 console.log('📦 Checking database...');
@@ -103,10 +132,7 @@ app.use(globalLimiter);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const sessionStore = new SQLiteStore({ db: 'sessions.db', dir: './database' });
-
 app.use(session({
-    store: sessionStore,
     secret: Settings.get('session_secret') || 'broqinsta_production_secret',
     resave: false,
     saveUninitialized: false,
@@ -124,6 +150,10 @@ const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 const sitemapRoutes = require('./routes/sitemap');
 const adminAuth = require('./middleware/adminAuth');
+
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
 
 app.get('/api/blog/posts', (req, res) => {
     try {
