@@ -134,7 +134,7 @@
                 </p>
 
                 <div class="glass-card p-10 max-w-2xl mx-auto shadow-2xl relative">
-                    <form id="downloadForm" class="space-y-6">
+                    <form id="downloadForm" class="space-y-6" onsubmit="return false;" action="javascript:void(0)">
                         <div class="relative group">
                             <input type="text" id="instagramUrl" placeholder="Paste Instagram link here..." required
                                 class="input-field pr-24">
@@ -454,17 +454,27 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="/js/app.js"></script>
     <script>
-        const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, observerOptions);
+        (function() {
+            var f = document.getElementById('downloadForm');
+            if (f) {
+                f.onsubmit = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                };
+            }
 
-        document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+            var observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
+            var observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+            document.querySelectorAll('.animate-on-scroll').forEach(function(el) { observer.observe(el); });
+        })();
     </script>
 </body>
 

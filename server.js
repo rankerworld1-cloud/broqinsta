@@ -69,7 +69,7 @@ async function startServer() {
                 fontSrc: ["'self'", "https://fonts.gstatic.com"],
                 imgSrc: ["'self'", "data:", "https:", "blob:"],
                 connectSrc: ["'self'", "https://pagead2.googlesyndication.com", "https://*.google.com", "https://*.googleapis.com", "https://*.adtrafficquality.google"],
-                frameSrc: ["'self'", "https://googleads.g.doubleclick.net", "https://*.google.com"],
+                frameSrc: ["'self'", "https://googleads.g.doubleclick.net", "https://*.google.com", "https://*.adtrafficquality.google"],
                 objectSrc: ["'none'"],
                 upgradeInsecureRequests: []
             }
