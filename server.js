@@ -112,7 +112,7 @@ app.use(session({
     saveUninitialized: false,
     name: 'broqinsta.sid',
     cookie: {
-        secure: process.env.NODE_ENV === 'production',
+        secure: false,
         httpOnly: true,
         maxAge: 30 * 24 * 60 * 60 * 1000,
         sameSite: 'lax'
