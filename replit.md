@@ -6,9 +6,9 @@ BroqInsta is a professional Instagram video/content downloader SaaS application 
 ## Architecture
 - **Backend**: Node.js + Express server (`server.js`)
 - **View Engine**: EJS templates in `views/` directory (server-side rendering)
-- **Database**: SQLite via `better-sqlite3` (stored in `database/` directory)
+- **Database**: SQLite via `sql.js` — pure JavaScript, no native bindings (stored in `database/` directory)
 - **Frontend**: Static HTML/CSS/JS served from `public/` directory (admin panel only)
-- **Session Store**: SQLite-backed sessions via `connect-sqlite3`
+- **Session Store**: Express MemoryStore (in-memory sessions)
 
 ## Project Structure
 ```

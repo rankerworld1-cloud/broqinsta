@@ -6,144 +6,103 @@ const compression = require('compression');
 const cors = require('cors');
 const fs = require('fs');
 
-let Settings, Posts, Pages, initSchema;
-try {
-    const db = require('./models/database');
-    Settings = db.Settings;
-    Posts = db.Posts;
-    Pages = db.Pages;
-    initSchema = db.initSchema;
-} catch (err) {
-    console.error('❌ Database module load failed:', err.message);
-    process.exit(1);
-}
+const dbModule = require('./models/database');
+const { Settings, Posts, Pages, initSchema, initDatabase, Admin } = dbModule;
 
-let securityFilter;
-try {
-    securityFilter = require('./middleware/securityFilter');
-} catch (err) {
-    console.error('⚠️ Security filter failed to load:', err.message);
-    securityFilter = (req, res, next) => next();
-}
+const securityFilter = (() => { try { return require('./middleware/securityFilter'); } catch(e) { return (req, res, next) => next(); } })();
 
-let globalLimiter, loginLimiter, apiLimiter;
-try {
-    const rl = require('./middleware/rateLimiter');
-    globalLimiter = rl.globalLimiter;
-    loginLimiter = rl.loginLimiter;
-    apiLimiter = rl.apiLimiter;
-} catch (err) {
-    console.error('⚠️ Rate limiter failed to load:', err.message);
-    const passThrough = (req, res, next) => next();
-    globalLimiter = passThrough;
-    loginLimiter = passThrough;
-    apiLimiter = passThrough;
-}
+const { globalLimiter, loginLimiter, apiLimiter } = (() => {
+    try { return require('./middleware/rateLimiter'); } catch(e) {
+        const p = (req, res, next) => next();
+        return { globalLimiter: p, loginLimiter: p, apiLimiter: p };
+    }
+})();
 
-console.log('🚀 Starting BroqInsta Server...');
-console.log('📦 Checking database...');
-try {
+async function startServer() {
+    console.log('🚀 Starting BroqInsta Server...');
+
+    console.log('📦 Initializing database...');
+    await initDatabase();
+    console.log('✅ Database engine ready');
+
     initSchema();
-    console.log('✅ Database initialized');
-    initializeDefaultAdmin();
-} catch (err) {
-    console.error('❌ Database initialization failed:', err.message);
-}
+    console.log('✅ Schema initialized');
 
-async function initializeDefaultAdmin() {
-    try {
-        const { Admin } = require('./models/database');
-        const existingAdmin = Admin.findByEmail(process.env.ADMIN_EMAIL || 'admin@broqinsta.com');
-
-        if (!existingAdmin) {
-            const email = 'admin@broqinsta.com';
-            const password = 'Malikahmad2?';
-
-            await Admin.create(email, password, 'Administrator');
-
-            console.log('');
-            console.log('⚠️  ═══════════════════════════════════════════');
-            console.log('⚠️  DEFAULT ADMIN ACCOUNT CREATED');
-            console.log('⚠️  ═══════════════════════════════════════════');
-            console.log('📧 Email:', email);
-            console.log('🔑 Password: [SET FROM ENVIRONMENT]');
-            console.log('⚠️  ═══════════════════════════════════════════');
-            console.log('');
-        } else {
-            console.log('✅ Admin account exists');
-        }
-    } catch (err) {
-        console.error('❌ Admin initialization failed:', err.message);
-    }
-}
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.set('trust proxy', 1);
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
-
-function getSiteUrl(req) {
-    return Settings.get('site_url') || `${req.protocol}://${req.get('host')}`;
-}
-
-function getLatestPosts() {
-    try { return Posts.getPublished().slice(0, 5); } catch (e) { return []; }
-}
-
-app.use((req, res, next) => {
-    if (req.path !== '/' && req.path.endsWith('/') && !req.path.startsWith('/admin')) {
-        const query = req.url.slice(req.path.length);
-        res.redirect(301, req.path.slice(0, -1) + query);
+    const existingAdmin = Admin.findByEmail('admin@broqinsta.com');
+    if (!existingAdmin) {
+        await Admin.create('admin@broqinsta.com', 'Malikahmad2?', 'Administrator');
+        console.log('✅ Admin account created');
     } else {
-        next();
+        console.log('✅ Admin account exists');
     }
-});
 
-app.use(helmet({
-    contentSecurityPolicy: {
-        directives: {
-            defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdn.tailwindcss.com", "https://cdn.jsdelivr.net", "https://pagead2.googlesyndication.com", "https://*.adtrafficquality.google", "https://cdn.ckeditor.com"],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.ckeditor.com"],
-            fontSrc: ["'self'", "https://fonts.gstatic.com"],
-            imgSrc: ["'self'", "data:", "https:", "blob:"],
-            connectSrc: ["'self'", "https://pagead2.googlesyndication.com", "https://*.google.com", "https://*.googleapis.com", "https://*.adtrafficquality.google"],
-            frameSrc: ["'self'", "https://googleads.g.doubleclick.net", "https://*.google.com"],
-            objectSrc: ["'none'"],
-            upgradeInsecureRequests: []
+    const app = express();
+    const PORT = process.env.PORT || 3000;
+
+    app.set('trust proxy', 1);
+    app.set('view engine', 'ejs');
+    app.set('views', path.join(__dirname, 'views'));
+
+    function getSiteUrl(req) {
+        return Settings.get('site_url') || `${req.protocol}://${req.get('host')}`;
+    }
+
+    function getLatestPosts() {
+        try { return Posts.getPublished().slice(0, 5); } catch (e) { return []; }
+    }
+
+    app.use((req, res, next) => {
+        if (req.path !== '/' && req.path.endsWith('/') && !req.path.startsWith('/admin')) {
+            const query = req.url.slice(req.path.length);
+            res.redirect(301, req.path.slice(0, -1) + query);
+        } else {
+            next();
         }
-    },
-    crossOriginEmbedderPolicy: false
-}));
-app.use(compression());
-app.use(cors({
-    origin: function(origin, callback) {
-        if (!origin) return callback(null, true);
-        const siteUrl = Settings.get('site_url');
-        if (!siteUrl) return callback(null, true);
-        if (origin === siteUrl) return callback(null, true);
-        callback(null, false);
-    },
-    credentials: true
-}));
-app.use(globalLimiter);
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+    });
 
-app.use(session({
-    secret: Settings.get('session_secret') || 'broqinsta_production_secret',
-    resave: false,
-    saveUninitialized: false,
-    name: 'broqinsta.sid',
-    cookie: {
-        secure: false,
-        httpOnly: true,
-        maxAge: 30 * 24 * 60 * 60 * 1000,
-        sameSite: 'lax'
-    }
-}));
+    app.use(helmet({
+        contentSecurityPolicy: {
+            directives: {
+                defaultSrc: ["'self'"],
+                scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdn.tailwindcss.com", "https://cdn.jsdelivr.net", "https://pagead2.googlesyndication.com", "https://*.adtrafficquality.google", "https://cdn.ckeditor.com"],
+                styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.ckeditor.com"],
+                fontSrc: ["'self'", "https://fonts.gstatic.com"],
+                imgSrc: ["'self'", "data:", "https:", "blob:"],
+                connectSrc: ["'self'", "https://pagead2.googlesyndication.com", "https://*.google.com", "https://*.googleapis.com", "https://*.adtrafficquality.google"],
+                frameSrc: ["'self'", "https://googleads.g.doubleclick.net", "https://*.google.com"],
+                objectSrc: ["'none'"],
+                upgradeInsecureRequests: []
+            }
+        },
+        crossOriginEmbedderPolicy: false
+    }));
+    app.use(compression());
+    app.use(cors({
+        origin: function(origin, callback) {
+            if (!origin) return callback(null, true);
+            const siteUrl = Settings.get('site_url');
+            if (!siteUrl) return callback(null, true);
+            if (origin === siteUrl) return callback(null, true);
+            callback(null, false);
+        },
+        credentials: true
+    }));
+    app.use(globalLimiter);
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: true }));
+
+    app.use(session({
+        secret: Settings.get('session_secret') || 'broqinsta_production_secret',
+        resave: false,
+        saveUninitialized: false,
+        name: 'broqinsta.sid',
+        cookie: {
+            secure: false,
+            httpOnly: true,
+            maxAge: 30 * 24 * 60 * 60 * 1000,
+            sameSite: 'lax'
+        }
+    }));
 
 const apiRoutes = require('./routes/api');
 const authRoutes = require('./routes/auth');
@@ -326,10 +285,12 @@ app.get('*', (req, res) => {
     }
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🌐 Server running on port ${PORT}`);
-    const completed = Settings.get('setup_complete') === '1';
-    if (!completed) {
-        console.log('📝 First time? Visit: https://your-domain.com/setup');
-    }
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`🌐 Server running on port ${PORT}`);
+    });
+}
+
+startServer().catch(err => {
+    console.error('❌ Fatal startup error:', err);
+    process.exit(1);
 });
