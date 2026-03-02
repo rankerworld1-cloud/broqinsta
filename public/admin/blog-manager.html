@@ -7,7 +7,7 @@
     <title>Blog Manager - BroqInsta CMS</title>
     <link rel="stylesheet" href="../css/style.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+    <script src="https://cdn.ckeditor.com/4.25.1/standard/ckeditor.js"></script>
     <style>
         .sidebar-link {
             display: flex;
@@ -233,7 +233,7 @@
                         <tr class="border-b border-gray-50 group hover:bg-gray-50/50 transition-colors">
                             <td class="py-8">
                                 <p class="text-gray-900 font-black">${post.title}</p>
-                                <p class="text-[10px] text-purple-600 font-mono">/blog/${post.slug}</p>
+                                <p class="text-[10px] text-purple-600 font-mono">/${post.slug}</p>
                             </td>
                             <td class="py-8 text-center">
                                 <span class="px-3 py-1 bg-purple-50 text-purple-600 rounded-full text-[9px] font-black uppercase tracking-widest">${post.category || 'General'}</span>
@@ -243,7 +243,7 @@
                             </td>
                             <td class="py-8 text-gray-400 text-xs">${new Date(post.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}</td>
                             <td class="py-8 text-right space-x-6">
-                                <a href="/blog/${post.slug}" target="_blank" class="text-xs font-black text-gray-400 hover:text-purple-600 uppercase tracking-widest">Preview</a>
+                                <a href="/${post.slug}" target="_blank" class="text-xs font-black text-gray-400 hover:text-purple-600 uppercase tracking-widest">Preview</a>
                                 <button onclick="editPost(${post.id})" class="text-xs font-black text-gray-400 hover:text-gray-900 uppercase tracking-widest">Edit</button>
                                 <button onclick="deletePost(${post.id})" class="text-xs font-black text-red-300 hover:text-red-500 uppercase tracking-widest">Delete</button>
                             </td>

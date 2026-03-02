@@ -196,7 +196,7 @@
 
         function updateMeta(post) {
             const baseUrl = window.location.origin;
-            const pageUrl = `${baseUrl}/blog/${post.slug}`;
+            const pageUrl = `${baseUrl}/${post.slug}`;
             const metaTitle = post.meta_title || `${post.title} - BroqInsta`;
             const metaDesc = post.meta_description || post.excerpt || '';
             const ogImage = post.featured_image || `${baseUrl}/images/preview.png`;
@@ -219,7 +219,7 @@
             const grid = document.getElementById('related-grid');
             section.classList.remove('hidden');
             grid.innerHTML = related.map(post => `
-                <a href="/blog/${post.slug}" class="glass-card p-8 flex flex-col group hover:shadow-lg transition-all">
+                <a href="/${post.slug}" class="glass-card p-8 flex flex-col group hover:shadow-lg transition-all">
                     <span class="text-[9px] font-black uppercase tracking-[0.2em] text-purple-600 px-3 py-1 bg-purple-50 rounded-full inline-block mb-4 w-fit">${post.category || 'Article'}</span>
                     <h3 class="text-xl font-black text-gray-900 group-hover:text-purple-600 transition-colors line-clamp-2 mb-4">${post.title}</h3>
                     <p class="text-sm text-gray-500 line-clamp-2 flex-grow">${post.excerpt || ''}</p>
