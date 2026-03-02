@@ -64,8 +64,8 @@ async function startServer() {
         contentSecurityPolicy: {
             directives: {
                 defaultSrc: ["'self'"],
-                scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdn.tailwindcss.com", "https://cdn.jsdelivr.net", "https://pagead2.googlesyndication.com", "https://*.adtrafficquality.google", "https://cdn.ckeditor.com"],
-                styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.ckeditor.com"],
+                scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdn.jsdelivr.net", "https://pagead2.googlesyndication.com", "https://*.adtrafficquality.google", "https://cdn.ckeditor.com"],
+                styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.jsdelivr.net", "https://cdn.ckeditor.com"],
                 fontSrc: ["'self'", "https://fonts.gstatic.com"],
                 imgSrc: ["'self'", "data:", "https:", "blob:"],
                 connectSrc: ["'self'", "https://pagead2.googlesyndication.com", "https://*.google.com", "https://*.googleapis.com", "https://*.adtrafficquality.google"],
