@@ -207,7 +207,11 @@ app.get('/admin/login.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin', 'login.html'));
 });
 
-app.use('/admin', adminAuth, express.static(path.join(__dirname, 'public', 'admin')));
+app.get('/admin', adminAuth, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin', 'dashboard.html'));
+});
+
+app.use('/admin', adminAuth, express.static(path.join(__dirname, 'public', 'admin'), { redirect: false }));
 
 app.use(securityFilter);
 
@@ -246,10 +250,6 @@ app.get('/all-pages', (req, res) => {
 });
 
 app.use('/api/admin', adminAuth, adminRoutes);
-
-app.get('/admin', adminAuth, (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'admin', 'dashboard.html'));
-});
 
 app.get('/:slug', (req, res, next) => {
     const { slug } = req.params;
