@@ -1,4 +1,8 @@
 module.exports = (req, res, next) => {
+    if (req.path === '/login.html' || req.path === '/login') {
+        return next();
+    }
+
     if (req.session && req.session.adminId) {
         return next();
     }
