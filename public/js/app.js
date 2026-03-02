@@ -104,13 +104,25 @@ document.addEventListener('DOMContentLoaded', () => {
         if (mediaTitle) mediaTitle.innerText = data.title || 'Instagram Media';
         if (viewLink) viewLink.href = data.videoUrl;
 
-        // Preview Optimization
         if (mediaPreview) {
-            if (data.thumbnail) {
+            if (data.videoUrl && data.mediaType !== 'image') {
+                mediaPreview.innerHTML = `
+                    <video src="${data.videoUrl}" 
+                         controls playsinline preload="metadata"
+                         poster="${data.thumbnail || ''}"
+                         class="w-full h-full object-contain rounded-[1.5rem] shadow-lg bg-black">
+                    </video>`;
+            } else if (data.thumbnail) {
                 mediaPreview.innerHTML = `
                     <img src="${data.thumbnail}" 
                          class="w-full h-full object-cover rounded-[1.5rem] shadow-lg animate-on-scroll visible" 
                          alt="Direct Media Stream">`;
+            } else if (data.videoUrl) {
+                mediaPreview.innerHTML = `
+                    <video src="${data.videoUrl}" 
+                         controls playsinline preload="metadata"
+                         class="w-full h-full object-contain rounded-[1.5rem] shadow-lg bg-black">
+                    </video>`;
             } else {
                 mediaPreview.innerHTML = `
                     <div class="w-full h-full flex flex-col items-center justify-center bg-gray-50 text-gray-400">
